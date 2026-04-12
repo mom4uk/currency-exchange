@@ -2,6 +2,7 @@ package server
 
 import (
 	"currency-exchange/internal/controllers"
+	"currency-exchange/internal/utilities"
 	"net/http"
 )
 
@@ -16,11 +17,21 @@ func New() *Server {
 }
 
 func (s *Server) RegisterRoutes(controller *controllers.CurrencyController) {
-	s.mux.HandleFunc("/currencies", controller.HandleCurrencies)
-	s.mux.HandleFunc("/currency/", controller.GetCurrency)
-	s.mux.HandleFunc("/exchangeRates", controller.HandleExchangeRates)
-	s.mux.HandleFunc("/exchangeRate/", controller.HandleExchangeRate)
-	s.mux.HandleFunc("/exchange", controller.GetExchange)
+	s.mux.Handle("/currencies",
+		utilities.JSON(http.HandlerFunc(controller.HandleCurrencies)),
+	)
+	s.mux.Handle("/currency/",
+		utilities.JSON(http.HandlerFunc(controller.GetCurrency)),
+	)
+	s.mux.Handle("/exchangeRates",
+		utilities.JSON(http.HandlerFunc(controller.HandleExchangeRates)),
+	)
+	s.mux.Handle("/exchangeRate/",
+		utilities.JSON(http.HandlerFunc(controller.HandleExchangeRate)),
+	)
+	s.mux.Handle("/exchange",
+		utilities.JSON(http.HandlerFunc(controller.GetExchange)),
+	)
 }
 
 func (s *Server) Start() error {

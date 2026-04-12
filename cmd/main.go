@@ -1,8 +1,8 @@
 package main
 
 import (
+	"currency-exchange/db"
 	"currency-exchange/internal/controllers"
-	"currency-exchange/internal/db"
 	"currency-exchange/internal/repositories"
 	"currency-exchange/internal/server"
 	"currency-exchange/internal/services"
