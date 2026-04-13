@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 type CurrencyController struct {
@@ -112,15 +113,37 @@ func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+func (c *CurrencyController) addExchangeRates(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	rate, err := strconv.ParseFloat(r.FormValue("rate"), 64)
+
+	if err != nil {
+		http.Error(w, "Invalid rate", http.StatusInternalServerError)
+		return
+	}
+
+	exchangeRate := domain.AddExchangeRateRequest{
+		BaseCurrencyCode:   r.FormValue("baseCurrencyCode"),
+		TargetCurrencyCode: r.FormValue("targetCurrencyCode"),
+		Rate:               rate,
+	}
+
+	res, err := c.repository.AddExchangeRates(exchangeRate)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
+
 func (c *CurrencyController) GetExchange(w http.ResponseWriter, r *http.Request) {
 
 }
 
 func (c *CurrencyController) getExchangeRates(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (c *CurrencyController) addExchangeRates(w http.ResponseWriter, r *http.Request) {
 
 }
 
