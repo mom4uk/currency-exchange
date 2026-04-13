@@ -38,7 +38,7 @@ func (c *CurrencyController) HandleExchangeRates(w http.ResponseWriter, r *http.
 	case "GET":
 		c.getExchangeRates(w, r)
 	case "POST":
-		c.postExchangeRates(w, r)
+		c.addExchangeRates(w, r)
 	default:
 		http.Error(w, "This method is not allowed", http.StatusMethodNotAllowed)
 	}
@@ -70,11 +70,12 @@ func (c *CurrencyController) getCurrencies(w http.ResponseWriter) {
 }
 
 func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request) {
-	var currency domain.Currency
+	r.ParseForm()
 
-	if err := json.NewDecoder(r.Body).Decode(&currency); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	currency := domain.Currency{
+		Name: r.FormValue("name"),
+		Code: r.FormValue("code"),
+		Sign: r.FormValue("sign"),
 	}
 
 	err := c.repository.AddCurrency(currency)
@@ -119,7 +120,7 @@ func (c *CurrencyController) getExchangeRates(w http.ResponseWriter, r *http.Req
 
 }
 
-func (c *CurrencyController) postExchangeRates(w http.ResponseWriter, r *http.Request) {
+func (c *CurrencyController) addExchangeRates(w http.ResponseWriter, r *http.Request) {
 
 }
 
