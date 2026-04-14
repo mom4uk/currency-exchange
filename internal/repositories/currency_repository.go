@@ -167,14 +167,56 @@ func (r *CurrencyRepository) GetExchangeRates() ([]domain.ExchangeRateResponse, 
 			return nil, err
 		}
 
-		var er domain.ExchangeRateResponse
+		var res domain.ExchangeRateResponse
 
-		er.BaseCurrency = baseCurrency
-		er.TargetCurrency = targetCurrency
-		er.Rate = e.Rate
+		res.BaseCurrency = baseCurrency
+		res.TargetCurrency = targetCurrency
+		res.Rate = e.Rate
 
-		result = append(result, er)
+		result = append(result, res)
 	}
 
 	return result, nil
+}
+
+func (r *CurrencyRepository) GetExchangeRatesByCodes(baseCurrencyCode string, targetCurrencyCode string) (domain.ExchangeRateResponse, error) {
+	baseCurrency, err := r.GetCurrencyByCode(baseCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRateResponse{}, err
+	}
+
+	targetCurrency, err := r.GetCurrencyByCode(targetCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRateResponse{}, err
+	}
+
+	rate, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
+	if err != nil {
+		return domain.ExchangeRateResponse{}, err
+	}
+	return domain.ExchangeRateResponse{
+		ID:             int(rate.ID),
+		BaseCurrency:   baseCurrency,
+		TargetCurrency: targetCurrency,
+		Rate:           rate.Rate,
+	}, nil
+}
+
+func (r *CurrencyRepository) GetExchangeRate(baseCurrencyId int, targetCurrencyId int) (domain.ExchangeRate, error) {
+	var e domain.ExchangeRate
+	query := `SELECT id, base_currency_id, target_currency_id, rate FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?`
+
+	err := r.db.QueryRow(query, baseCurrencyId, targetCurrencyId).Scan(
+		&e.ID,
+		&e.BaseCurrencyId,
+		&e.TargetCurrencyId,
+		&e.Rate,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return domain.ExchangeRate{}, sql.ErrNoRows
+		}
+		return domain.ExchangeRate{}, err
+	}
+	return e, nil
 }

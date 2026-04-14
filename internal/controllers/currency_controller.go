@@ -95,7 +95,7 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 }
 
 func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request) {
-	currencyCode := utilities.GetCurrencyCode(r.URL.Path)
+	currencyCode := utilities.GetLastPathSegment(r.URL.Path)
 	currency, err := c.repository.GetCurrencyByCode(currencyCode)
 
 	if err != nil {
@@ -154,7 +154,19 @@ func (c *CurrencyController) getExchangeRates(w http.ResponseWriter) {
 }
 
 func (c *CurrencyController) getExchangeRate(w http.ResponseWriter, r *http.Request) {
+	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
+	rate, err := c.repository.GetExchangeRatesByCodes(baseCurrencyCode, targetCurrencyCode)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(rate)
 }
 
 func (c *CurrencyController) patchExchangeRate(w http.ResponseWriter, r *http.Request) {
