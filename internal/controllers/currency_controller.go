@@ -12,8 +12,9 @@ import (
 )
 
 type CurrencyController struct {
-	repository repositories.CurrencyRepository
-	service    services.CurrencyService
+	repository          repositories.CurrencyRepository
+	service             services.CurrencyService
+	exchangeRateService services.ExchangeRateService
 }
 
 func NewController(repo *repositories.CurrencyRepository, service *services.CurrencyService) *CurrencyController {
@@ -79,7 +80,7 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 		Sign: r.FormValue("sign"),
 	}
 
-	err := c.repository.AddCurrency(currency)
+	res, err := c.repository.AddCurrency(currency)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -88,7 +89,7 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 
 	w.WriteHeader(http.StatusCreated)
 
-	if err := json.NewEncoder(w).Encode(currency); err != nil {
+	if err := json.NewEncoder(w).Encode(res); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -123,14 +124,19 @@ func (c *CurrencyController) addExchangeRates(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	exchangeRate := domain.AddExchangeRateRequest{
+	req := domain.AddExchangeRateRequest{
 		BaseCurrencyCode:   r.FormValue("baseCurrencyCode"),
 		TargetCurrencyCode: r.FormValue("targetCurrencyCode"),
 		Rate:               rate,
 	}
 
-	res, err := c.repository.AddExchangeRates(exchangeRate)
+	exchangeRate, err := c.repository.AddExchangeRates(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
+	res, err := c.exchangeRateService.GetExchangeRateResponse(exchangeRate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -139,18 +145,16 @@ func (c *CurrencyController) addExchangeRates(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(res)
 }
 
-func (c *CurrencyController) GetExchange(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func (c *CurrencyController) getExchangeRates(w http.ResponseWriter) {
-	exchangeRates, err := c.repository.GetExchangeRates()
+	rates, err := c.repository.GetExchangeRates()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(exchangeRates)
+	response, err := c.exchangeRateService.GetExchangeRatesResponse(rates)
+
+	json.NewEncoder(w).Encode(response)
 }
 
 func (c *CurrencyController) getExchangeRate(w http.ResponseWriter, r *http.Request) {
@@ -166,9 +170,40 @@ func (c *CurrencyController) getExchangeRate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	json.NewEncoder(w).Encode(rate)
+	response, err := c.exchangeRateService.GetExchangeRateResponse(rate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 func (c *CurrencyController) patchExchangeRate(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rateValue, err := strconv.ParseFloat(r.FormValue("rate"), 64)
+
+	rate, err := c.repository.UpdateExchangeRate(baseCurrencyCode, targetCurrencyCode, rateValue)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response, err := c.exchangeRateService.GetExchangeRateResponse(rate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
+func (c *CurrencyController) GetExchange(w http.ResponseWriter, r *http.Request) {
 
 }

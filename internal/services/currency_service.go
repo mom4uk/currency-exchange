@@ -1,6 +1,8 @@
 package services
 
-import "currency-exchange/internal/repositories"
+import (
+	"currency-exchange/internal/repositories"
+)
 
 type CurrencyService struct {
 	repository repositories.CurrencyRepository
