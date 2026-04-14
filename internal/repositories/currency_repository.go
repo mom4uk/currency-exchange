@@ -3,7 +3,6 @@ package repositories
 import (
 	"currency-exchange/internal/domain"
 	"database/sql"
-	"fmt"
 )
 
 type CurrencyRepository struct {
@@ -52,7 +51,7 @@ func (r *CurrencyRepository) AddCurrency(c domain.Currency) error {
 	return err
 }
 
-func (r *CurrencyRepository) GetCurrency(code string) (domain.Currency, error) {
+func (r *CurrencyRepository) GetCurrencyByCode(code string) (domain.Currency, error) {
 	query := `SELECT id, code, name, sign FROM currencies WHERE code = ?`
 
 	var c domain.Currency
@@ -74,14 +73,35 @@ func (r *CurrencyRepository) GetCurrency(code string) (domain.Currency, error) {
 	return c, nil
 }
 
+func (r *CurrencyRepository) GetCurrencyById(id int) (domain.Currency, error) {
+	query := `SELECT id, code, name, sign FROM currencies WHERE id = ?`
+
+	var c domain.Currency
+
+	err := r.db.QueryRow(query, id).Scan(
+		&c.ID,
+		&c.Code,
+		&c.Name,
+		&c.Sign,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return domain.Currency{}, sql.ErrNoRows
+		}
+		return domain.Currency{}, err
+	}
+
+	return c, nil
+}
+
 func (r *CurrencyRepository) AddExchangeRates(e domain.AddExchangeRateRequest) (domain.ExchangeRateResponse, error) {
-	fmt.Print(e)
-	baseCurrency, err := r.GetCurrency(e.BaseCurrencyCode)
+	baseCurrency, err := r.GetCurrencyByCode(e.BaseCurrencyCode)
 	if err != nil {
 		return domain.ExchangeRateResponse{}, err
 	}
 
-	targetCurrency, err := r.GetCurrency(e.TargetCurrencyCode)
+	targetCurrency, err := r.GetCurrencyByCode(e.TargetCurrencyCode)
 	if err != nil {
 		return domain.ExchangeRateResponse{}, err
 	}
@@ -104,4 +124,57 @@ func (r *CurrencyRepository) AddExchangeRates(e domain.AddExchangeRateRequest) (
 		TargetCurrency: targetCurrency,
 		Rate:           e.Rate,
 	}, nil
+}
+
+func (r *CurrencyRepository) GetExchangeRates() ([]domain.ExchangeRateResponse, error) {
+	query := `SELECT * FROM exchange_rates`
+
+	rows, err := r.db.Query(query)
+	result := []domain.ExchangeRateResponse{}
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, sql.ErrNoRows
+		}
+		return nil, err
+	}
+
+	for rows.Next() {
+		var e domain.ExchangeRate
+
+		err := rows.Scan(
+			&e.ID,
+			&e.BaseCurrencyId,
+			&e.TargetCurrencyId,
+			&e.Rate,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		baseCurrency, err := r.GetCurrencyById(e.BaseCurrencyId)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, sql.ErrNoRows
+			}
+			return nil, err
+		}
+		targetCurrency, err := r.GetCurrencyById(e.TargetCurrencyId)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, sql.ErrNoRows
+			}
+			return nil, err
+		}
+
+		var er domain.ExchangeRateResponse
+
+		er.BaseCurrency = baseCurrency
+		er.TargetCurrency = targetCurrency
+		er.Rate = e.Rate
+
+		result = append(result, er)
+	}
+
+	return result, nil
 }

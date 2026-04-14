@@ -37,7 +37,7 @@ func (c *CurrencyController) HandleCurrencies(w http.ResponseWriter, r *http.Req
 func (c *CurrencyController) HandleExchangeRates(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		c.getExchangeRates(w, r)
+		c.getExchangeRates(w)
 	case "POST":
 		c.addExchangeRates(w, r)
 	default:
@@ -96,7 +96,7 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 
 func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request) {
 	currencyCode := utilities.GetCurrencyCode(r.URL.Path)
-	currency, err := c.repository.GetCurrency(currencyCode)
+	currency, err := c.repository.GetCurrencyByCode(currencyCode)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -143,8 +143,14 @@ func (c *CurrencyController) GetExchange(w http.ResponseWriter, r *http.Request)
 
 }
 
-func (c *CurrencyController) getExchangeRates(w http.ResponseWriter, r *http.Request) {
+func (c *CurrencyController) getExchangeRates(w http.ResponseWriter) {
+	exchangeRates, err := c.repository.GetExchangeRates()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
+	json.NewEncoder(w).Encode(exchangeRates)
 }
 
 func (c *CurrencyController) getExchangeRate(w http.ResponseWriter, r *http.Request) {
