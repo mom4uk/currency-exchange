@@ -16,21 +16,21 @@ func New() *Server {
 	}
 }
 
-func (s *Server) RegisterRoutes(controller *controllers.CurrencyController) {
+func (s *Server) RegisterRoutes(currencyController *controllers.CurrencyController, exchangeRateController *controllers.ExchangeRateController) {
 	s.mux.Handle("/currencies",
-		utilities.JSON(http.HandlerFunc(controller.HandleCurrencies)),
+		utilities.JSON(http.HandlerFunc(currencyController.HandleCurrencies)),
 	)
 	s.mux.Handle("/currency/",
-		utilities.JSON(http.HandlerFunc(controller.GetCurrency)),
+		utilities.JSON(http.HandlerFunc(currencyController.GetCurrency)),
 	)
 	s.mux.Handle("/exchangeRates",
-		utilities.JSON(http.HandlerFunc(controller.HandleExchangeRates)),
+		utilities.JSON(http.HandlerFunc(exchangeRateController.HandleExchangeRates)),
 	)
 	s.mux.Handle("/exchangeRate/",
-		utilities.JSON(http.HandlerFunc(controller.HandleExchangeRate)),
+		utilities.JSON(http.HandlerFunc(exchangeRateController.HandleExchangeRate)),
 	)
 	s.mux.Handle("/exchange",
-		utilities.JSON(http.HandlerFunc(controller.GetExchange)),
+		utilities.JSON(http.HandlerFunc(currencyController.GetExchange)),
 	)
 }
 

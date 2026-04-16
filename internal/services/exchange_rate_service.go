@@ -6,22 +6,71 @@ import (
 )
 
 type ExchangeRateService struct {
-	repository repositories.CurrencyRepository
+	exchangeRateRepository *repositories.ExchangeRateRepository
+	currencyRepository     *repositories.CurrencyRepository
 }
 
-func ExchangeRateServiceNew(repo *repositories.CurrencyRepository) *CurrencyService {
-	return &CurrencyService{
-		repository: *repo,
+func ExchangeRateServiceNew(
+	exchangeRateRepository *repositories.ExchangeRateRepository,
+	currencyRepository *repositories.CurrencyRepository,
+) *ExchangeRateService {
+	return &ExchangeRateService{
+		exchangeRateRepository: exchangeRateRepository,
+		currencyRepository:     currencyRepository,
 	}
 }
 
+func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, targetCurrencyCode string, rate float64) (domain.ExchangeRate, error) {
+	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(baseCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRate{}, err
+	}
+
+	targetCurrency, err := s.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRate{}, err
+	}
+	return s.exchangeRateRepository.UpdateExchangeRate(baseCurrency, targetCurrency, rate)
+}
+
+func (s *ExchangeRateService) GetExchangeRatesByCodes(baseCurrencyCode string, targetCurrencyCode string) (domain.ExchangeRate, error) {
+	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(baseCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRate{}, err
+	}
+
+	targetCurrency, err := s.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRate{}, err
+	}
+	return s.exchangeRateRepository.GetExchangeRatesByCodes(baseCurrency, targetCurrency)
+}
+
+func (s *ExchangeRateService) GetExchangeRates() ([]domain.ExchangeRate, error) {
+	return s.exchangeRateRepository.GetExchangeRates()
+}
+
+func (s *ExchangeRateService) AddExchangeRates(req domain.AddExchangeRateRequest) (domain.ExchangeRate, error) {
+	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(req.BaseCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRate{}, err
+	}
+
+	targetCurrency, err := s.currencyRepository.GetCurrencyByCode(req.TargetCurrencyCode)
+	if err != nil {
+		return domain.ExchangeRate{}, err
+	}
+
+	return s.exchangeRateRepository.AddExchangeRates(baseCurrency, targetCurrency, req.Rate)
+}
+
 func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) (domain.ExchangeRateResponse, error) {
-	baseCurrency, err := s.repository.GetCurrencyById(rate.BaseCurrencyId)
+	baseCurrency, err := s.currencyRepository.GetCurrencyById(rate.BaseCurrencyId)
 	if err != nil {
 		return domain.ExchangeRateResponse{}, err
 	}
 
-	targetCurrency, err := s.repository.GetCurrencyById(rate.TargetCurrencyId)
+	targetCurrency, err := s.currencyRepository.GetCurrencyById(rate.TargetCurrencyId)
 	if err != nil {
 		return domain.ExchangeRateResponse{}, err
 	}

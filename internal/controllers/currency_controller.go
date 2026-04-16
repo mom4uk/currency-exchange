@@ -10,12 +10,12 @@ import (
 )
 
 type CurrencyController struct {
-	service services.CurrencyService
+	service *services.CurrencyService
 }
 
 func NewController(service *services.CurrencyService) *CurrencyController {
 	return &CurrencyController{
-		service: *service,
+		service: service,
 	}
 }
 

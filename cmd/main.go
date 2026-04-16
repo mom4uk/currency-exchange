@@ -16,10 +16,10 @@ func main() {
 	ExchangeRateRepository := repositories.ExchangeRateRepositoryNew(db)
 
 	currencyService := services.CurrencyServiceNew(CurrencyRepository)
-	exchangeService := services.ExchangeRateServiceNew(ExchangeRateRepository)
+	exchangeService := services.ExchangeRateServiceNew(ExchangeRateRepository, CurrencyRepository)
 
 	currencyController := controllers.NewController(currencyService)
-	exchangeRateController := controllers.NewController(exchangeService)
+	exchangeRateController := controllers.NewExchangeRateController(exchangeService)
 
 	srv := server.New()
 	srv.RegisterRoutes(currencyController, exchangeRateController)
