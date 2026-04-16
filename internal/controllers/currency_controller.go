@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 type CurrencyController struct {
@@ -88,5 +89,24 @@ func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request)
 }
 
 func (c *CurrencyController) GetExchange(w http.ResponseWriter, r *http.Request) {
+	baseCurrency := r.URL.Query().Get("from")
 
+	targetCurrency := r.URL.Query().Get("to")
+
+	amount, err := strconv.ParseFloat(r.URL.Query().Get("amount"), 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	exchange, err := c.service.GetExchange(baseCurrency, targetCurrency, amount)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(exchange); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

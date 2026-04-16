@@ -67,7 +67,7 @@ func (r *ExchangeRateRepository) GetExchangeRates() ([]domain.ExchangeRate, erro
 }
 
 func (r *ExchangeRateRepository) GetExchangeRatesByCodes(baseCurrency domain.Currency, targetCurrency domain.Currency) (domain.ExchangeRate, error) {
-	rate, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
+	rate, _, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
 	if err != nil {
 		return domain.ExchangeRate{}, err
 	}
@@ -79,7 +79,7 @@ func (r *ExchangeRateRepository) GetExchangeRatesByCodes(baseCurrency domain.Cur
 	}, nil
 }
 
-func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurrencyId int) (domain.ExchangeRate, error) {
+func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurrencyId int) (domain.ExchangeRate, bool, error) {
 	var e domain.ExchangeRate
 	query := `SELECT id, base_currency_id, target_currency_id, rate FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?`
 
@@ -91,11 +91,11 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return domain.ExchangeRate{}, sql.ErrNoRows
+			return domain.ExchangeRate{}, false, sql.ErrNoRows
 		}
-		return domain.ExchangeRate{}, err
+		return domain.ExchangeRate{}, false, err
 	}
-	return e, nil
+	return e, true, nil
 }
 
 func (r *ExchangeRateRepository) UpdateExchangeRate(baseCurrency domain.Currency, targetCurrency domain.Currency, rate float64) (domain.ExchangeRate, error) {
