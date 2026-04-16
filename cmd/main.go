@@ -12,12 +12,17 @@ import (
 func main() {
 	db := db.InitDb()
 
-	repo := repositories.CurrencyRepositoryNew(db)
-	service := services.CurrencyServiceNew(repo)
-	controller := controllers.NewController(repo, service)
+	CurrencyRepository := repositories.CurrencyRepositoryNew(db)
+	ExchangeRateRepository := repositories.ExchangeRateRepositoryNew(db)
+
+	currencyService := services.CurrencyServiceNew(CurrencyRepository)
+	exchangeService := services.ExchangeRateServiceNew(ExchangeRateRepository)
+
+	currencyController := controllers.NewController(currencyService)
+	exchangeRateController := controllers.NewController(exchangeService)
 
 	srv := server.New()
-	srv.RegisterRoutes(controller)
+	srv.RegisterRoutes(currencyController, exchangeRateController)
 
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)
