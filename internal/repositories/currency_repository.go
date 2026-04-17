@@ -14,7 +14,7 @@ func CurrencyRepositoryNew(db *sql.DB) *CurrencyRepository {
 }
 
 func (r CurrencyRepository) GetCurrencies() ([]domain.Currency, error) {
-	query := "SELECT * FROM currencies"
+	query := "SELECT id, name, code, sign FROM currencies"
 	rows, err := r.db.Query(query)
 
 	if err != nil {

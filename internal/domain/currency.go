@@ -1,10 +1,10 @@
 package domain
 
 type Currency struct {
-	ID   int
-	Code string
-	Name string
-	Sign string
+	ID   int    `json:"id"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+	Sign string `json:"sign"`
 }
 
 type CurencyExchange struct {

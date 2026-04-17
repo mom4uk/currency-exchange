@@ -12,6 +12,8 @@ import (
 func main() {
 	db := db.InitDb()
 
+	srv := server.New()
+
 	CurrencyRepository := repositories.CurrencyRepositoryNew(db)
 	ExchangeRateRepository := repositories.ExchangeRateRepositoryNew(db)
 
@@ -21,8 +23,8 @@ func main() {
 	currencyController := controllers.NewController(currencyService)
 	exchangeRateController := controllers.NewExchangeRateController(exchangeService)
 
-	srv := server.New()
-	srv.RegisterRoutes(currencyController, exchangeRateController)
+	controllers.RegisterCurrencyRoutes(srv.GetMux(), currencyController)
+	controllers.RegisterExchangeRoutes(srv.GetMux(), exchangeRateController)
 
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)
