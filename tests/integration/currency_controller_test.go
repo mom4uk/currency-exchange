@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -54,6 +55,38 @@ func TestGetCurrency_success(t *testing.T) {
 		Code: "EUR",
 		Name: "Euro",
 		Sign: "€",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+func TestAddCurrency_success(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/currencies",
+		strings.NewReader("name=Russian+Ruble&code=RUB&sign=₽"),
+	)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d", rr.Code)
+	}
+
+	var got domain.CurrencyResponse
+	json.NewDecoder(rr.Body).Decode(&got)
+
+	expected := domain.CurrencyResponse{
+		Code: "RUB",
+		Name: "Russian Ruble",
+		Sign: "₽",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
