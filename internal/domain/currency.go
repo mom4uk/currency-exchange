@@ -14,3 +14,9 @@ type CurencyExchange struct {
 	Amount          float64  `json:"amount"`
 	ConvertedAmount float64  `json:"convertedAmount"`
 }
+
+type CurrencyResponse struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+	Sign string `json:"sign"`
+}

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -18,7 +19,7 @@ func TestGetCurrencies_success(t *testing.T) {
 	app.Server.GetMux().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", rr.Code)
+		t.Fatalf("expected: 200, got: %d", rr.Code)
 	}
 
 	var resp []domain.Currency
@@ -27,9 +28,35 @@ func TestGetCurrencies_success(t *testing.T) {
 	}
 
 	expected := []domain.Currency{
-		{ID: 1, Code: "USD", Name: "United States dollar", Sign: "$"},
-		{ID: 2, Code: "EUR", Name: "Euro", Sign: "€"},
+		{Code: "USD", Name: "United States dollar", Sign: "$"},
+		{Code: "EUR", Name: "Euro", Sign: "€"},
 	}
 
 	test_utilities.AssertCurrencies(t, resp, expected)
+}
+
+func TestGetCurrency_success(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/currency/EUR", nil)
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+
+	var got domain.CurrencyResponse
+	json.NewDecoder(rr.Body).Decode(&got)
+
+	expected := domain.CurrencyResponse{
+		Code: "EUR",
+		Name: "Euro",
+		Sign: "€",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
 }

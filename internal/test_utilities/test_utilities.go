@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"sort"
 	"strings"
@@ -133,7 +132,7 @@ func AssertCurrencies(t *testing.T, got, exp []domain.Currency) {
 			}
 
 			if c.Code == e.Code {
-				if !reflect.DeepEqual(c, e) {
+				if c.Name != e.Name || c.Sign != e.Sign {
 					t.Fatalf(
 						"currency mismatch for code=%s:\n got: %+v\n exp: %+v",
 						c.Code, c, e,
