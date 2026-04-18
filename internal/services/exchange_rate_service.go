@@ -20,17 +20,28 @@ func ExchangeRateServiceNew(
 	}
 }
 
-func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, targetCurrencyCode string, rate float64) (domain.ExchangeRate, error) {
+func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, targetCurrencyCode string, rate float64) (domain.ExchangeRateResponse, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(baseCurrencyCode)
 	if err != nil {
-		return domain.ExchangeRate{}, err
+		return domain.ExchangeRateResponse{}, err
 	}
 
 	targetCurrency, err := s.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
 	if err != nil {
-		return domain.ExchangeRate{}, err
+		return domain.ExchangeRateResponse{}, err
 	}
-	return s.exchangeRateRepository.UpdateExchangeRate(baseCurrency, targetCurrency, rate)
+
+	result, err := s.exchangeRateRepository.UpdateExchangeRate(baseCurrency, targetCurrency, rate)
+	if err != nil {
+		return domain.ExchangeRateResponse{}, err
+	}
+
+	return domain.ExchangeRateResponse{
+		ID:             result.ID,
+		BaseCurrency:   baseCurrency,
+		TargetCurrency: targetCurrency,
+		Rate:           result.Rate,
+	}, nil
 }
 
 func (s *ExchangeRateService) GetExchangeRateByCodes(baseCurrencyCode string, targetCurrencyCode string) (domain.ExchangeRate, error) {
