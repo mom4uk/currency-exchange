@@ -49,13 +49,16 @@ func NewTestApp(t *testing.T) *TestApp {
 
 	currencyService := services.CurrencyServiceNew(exchangeRepo, currencyRepo)
 	exchangeRateService := services.ExchangeRateServiceNew(exchangeRepo, currencyRepo)
+	exchangeService := services.ExchangeServiceNew(exchangeRepo, currencyRepo)
 
 	currencyController := controllers.NewController(currencyService)
 	exchangeRateController := controllers.NewExchangeRateController(exchangeRateService)
+	exchangeController := controllers.NewExchangeController(exchangeService)
 
 	srv := server.New()
 	controllers.RegisterCurrencyRoutes(srv.GetMux(), currencyController)
-	controllers.RegisterExchangeRoutes(srv.GetMux(), exchangeRateController)
+	controllers.RegisterExchangeRateRoutes(srv.GetMux(), exchangeRateController)
+	controllers.RegisterExchangeRoutes(srv.GetMux(), exchangeController)
 
 	return &TestApp{
 		DB:                  db,

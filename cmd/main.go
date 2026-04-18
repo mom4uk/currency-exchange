@@ -18,13 +18,16 @@ func main() {
 	ExchangeRateRepository := repositories.ExchangeRateRepositoryNew(db)
 
 	currencyService := services.CurrencyServiceNew(ExchangeRateRepository, CurrencyRepository)
-	exchangeService := services.ExchangeRateServiceNew(ExchangeRateRepository, CurrencyRepository)
+	exchangeRateService := services.ExchangeRateServiceNew(ExchangeRateRepository, CurrencyRepository)
+	exchangeService := services.ExchangeServiceNew(ExchangeRateRepository, CurrencyRepository)
 
 	currencyController := controllers.NewController(currencyService)
-	exchangeRateController := controllers.NewExchangeRateController(exchangeService)
+	exchangeRateController := controllers.NewExchangeRateController(exchangeRateService)
+	exchangeController := controllers.NewExchangeController(exchangeService)
 
 	controllers.RegisterCurrencyRoutes(srv.GetMux(), currencyController)
-	controllers.RegisterExchangeRoutes(srv.GetMux(), exchangeRateController)
+	controllers.RegisterExchangeRateRoutes(srv.GetMux(), exchangeRateController)
+	controllers.RegisterExchangeRoutes(srv.GetMux(), exchangeController)
 
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)

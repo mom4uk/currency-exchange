@@ -110,6 +110,7 @@ func (e *ExchangeRateController) getExchangeRate(w http.ResponseWriter, r *http.
 
 func (e *ExchangeRateController) patchExchangeRate(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+
 	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
