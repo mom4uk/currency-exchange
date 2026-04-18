@@ -69,6 +69,8 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
+
 	json.NewEncoder(w).Encode(res)
 }
 

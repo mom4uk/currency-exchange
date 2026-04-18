@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -77,6 +79,60 @@ func TestGetExchangeRate_success(t *testing.T) {
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ExchangeRateResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v", err)
+	}
+
+	expected := domain.ExchangeRateResponse{
+		ID: 1,
+		BaseCurrency: domain.Currency{
+			ID:   1,
+			Code: "USD",
+			Name: "United States dollar",
+			Sign: "$",
+		},
+		TargetCurrency: domain.Currency{
+			ID:   2,
+			Code: "EUR",
+			Name: "Euro",
+			Sign: "€",
+		},
+		Rate: 0.99,
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v\nexpected: %+v", got, expected)
+	}
+}
+
+func TestAddExchangeRate_success(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	form := url.Values{}
+	form.Add("baseCurrencyCode", "USD")
+	form.Add("targetCurrencyCode", "EUR")
+	form.Add("rate", "0.99")
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/exchangeRates",
+		strings.NewReader(form.Encode()),
+	)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
 	var got domain.ExchangeRateResponse
