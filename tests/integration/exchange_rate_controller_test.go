@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"currency-exchange/db/seeds"
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/test_utilities"
 	"encoding/json"
@@ -15,11 +16,11 @@ import (
 func TestGetExchangeRates_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
-	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 
-	if err := test_utilities.SeedExchangeRates(app.DB); err != nil {
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
 		t.Fatalf("failed to seed exchange rates: %v", err)
 	}
 
@@ -64,11 +65,11 @@ func TestGetExchangeRates_success(t *testing.T) {
 func TestGetExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
-	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 
-	if err := test_utilities.SeedExchangeRates(app.DB); err != nil {
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
 		t.Fatalf("failed to seed exchange rates: %v", err)
 	}
 
@@ -111,7 +112,7 @@ func TestGetExchangeRate_success(t *testing.T) {
 func TestAddExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
-	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 
@@ -165,11 +166,11 @@ func TestAddExchangeRate_success(t *testing.T) {
 func TestUpdateExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
-	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 
-	if err := test_utilities.SeedExchangeRates(app.DB); err != nil {
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
 		t.Fatalf("failed to seed exchange rates: %v", err)
 	}
 

@@ -106,31 +106,6 @@ func runMigrations(db *sql.DB) error {
 	return nil
 }
 
-func SeedCurrencies(db *sql.DB) error {
-	_, err := db.Exec(`
-		INSERT INTO currencies (code, name, sign) VALUES
-		('USD', 'United States dollar', '$'),
-		('EUR', 'Euro', '€');
-	`)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func SeedExchangeRates(db *sql.DB) error {
-	_, err := db.Exec(`
-		INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES
-		(1, 2, 0.99);
-	`)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func AssertCurrencies(t *testing.T, got, exp []domain.Currency) {
 	t.Helper()
 

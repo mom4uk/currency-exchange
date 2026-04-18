@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"currency-exchange/db/seeds"
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/test_utilities"
 	"encoding/json"
@@ -14,7 +15,7 @@ import (
 func TestGetCurrencies_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
-	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 
@@ -43,7 +44,7 @@ func TestGetCurrencies_success(t *testing.T) {
 func TestGetCurrency_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
-	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 
@@ -76,7 +77,7 @@ func TestGetCurrency_success(t *testing.T) {
 func TestAddCurrency_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
-	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
 		t.Fatalf("seed failed: %v", err)
 	}
 
