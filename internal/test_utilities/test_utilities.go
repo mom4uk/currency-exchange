@@ -35,31 +35,33 @@ func NewTestDB(t *testing.T) *sql.DB {
 }
 
 type TestApp struct {
-	DB      any
-	Server  *server.Server
-	Service any
+	DB                  *sql.DB
+	Server              *server.Server
+	CurrencyService     *services.CurrencyService
+	ExchangeRateService *services.ExchangeRateService
 }
 
 func NewTestApp(t *testing.T) *TestApp {
 	db := NewTestDB(t)
 
-	if err := SeedCurrencies(db); err != nil {
-		t.Fatalf("seed failed: %v", err)
-	}
-
 	currencyRepo := repositories.CurrencyRepositoryNew(db)
 	exchangeRepo := repositories.ExchangeRateRepositoryNew(db)
 
-	service := services.CurrencyServiceNew(exchangeRepo, currencyRepo)
-	controller := controllers.NewController(service)
+	currencyService := services.CurrencyServiceNew(exchangeRepo, currencyRepo)
+	exchangeRateService := services.ExchangeRateServiceNew(exchangeRepo, currencyRepo)
+
+	currencyController := controllers.NewController(currencyService)
+	exchangeRateController := controllers.NewExchangeRateController(exchangeRateService)
 
 	srv := server.New()
-	controllers.RegisterCurrencyRoutes(srv.GetMux(), controller)
+	controllers.RegisterCurrencyRoutes(srv.GetMux(), currencyController)
+	controllers.RegisterExchangeRoutes(srv.GetMux(), exchangeRateController)
 
 	return &TestApp{
-		DB:      db,
-		Server:  srv,
-		Service: service,
+		DB:                  db,
+		Server:              srv,
+		CurrencyService:     currencyService,
+		ExchangeRateService: exchangeRateService,
 	}
 }
 
@@ -106,6 +108,18 @@ func SeedCurrencies(db *sql.DB) error {
 		INSERT INTO currencies (code, name, sign) VALUES
 		('USD', 'United States dollar', '$'),
 		('EUR', 'Euro', '€');
+	`)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SeedExchangeRates(db *sql.DB) error {
+	_, err := db.Exec(`
+		INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES
+		(1, 2, 0.99);
 	`)
 	if err != nil {
 		return err

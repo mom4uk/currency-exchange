@@ -66,7 +66,7 @@ func (r *ExchangeRateRepository) GetExchangeRates() ([]domain.ExchangeRate, erro
 	return result, nil
 }
 
-func (r *ExchangeRateRepository) GetExchangeRatesByCodes(baseCurrency domain.Currency, targetCurrency domain.Currency) (domain.ExchangeRate, error) {
+func (r *ExchangeRateRepository) GetExchangeRateByCodes(baseCurrency domain.Currency, targetCurrency domain.Currency) (domain.ExchangeRate, error) {
 	rate, _, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
 	if err != nil {
 		return domain.ExchangeRate{}, err
@@ -99,7 +99,7 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 }
 
 func (r *ExchangeRateRepository) UpdateExchangeRate(baseCurrency domain.Currency, targetCurrency domain.Currency, rate float64) (domain.ExchangeRate, error) {
-	exchangeRate, err := r.GetExchangeRatesByCodes(baseCurrency, targetCurrency)
+	exchangeRate, err := r.GetExchangeRateByCodes(baseCurrency, targetCurrency)
 	if err != nil {
 		return domain.ExchangeRate{}, err
 	}

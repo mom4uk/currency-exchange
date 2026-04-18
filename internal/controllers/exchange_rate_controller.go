@@ -91,7 +91,7 @@ func (e *ExchangeRateController) getExchangeRate(w http.ResponseWriter, r *http.
 		return
 	}
 
-	rate, err := e.service.GetExchangeRatesByCodes(baseCurrencyCode, targetCurrencyCode)
+	rate, err := e.service.GetExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

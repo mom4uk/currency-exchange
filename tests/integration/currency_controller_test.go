@@ -14,6 +14,10 @@ import (
 func TestGetCurrencies_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
+	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
 	req := httptest.NewRequest(http.MethodGet, "/currencies", nil)
 	rr := httptest.NewRecorder()
 
@@ -39,6 +43,10 @@ func TestGetCurrencies_success(t *testing.T) {
 func TestGetCurrency_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
+	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
 	req := httptest.NewRequest(http.MethodGet, "/currency/EUR", nil)
 	rr := httptest.NewRecorder()
 
@@ -48,10 +56,13 @@ func TestGetCurrency_success(t *testing.T) {
 		t.Fatalf("expected 200, got %d", rr.Code)
 	}
 
-	var got domain.CurrencyResponse
-	json.NewDecoder(rr.Body).Decode(&got)
+	var got domain.Currency
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v", err)
+	}
 
-	expected := domain.CurrencyResponse{
+	expected := domain.Currency{
+		ID:   2,
 		Code: "EUR",
 		Name: "Euro",
 		Sign: "€",
@@ -64,6 +75,10 @@ func TestGetCurrency_success(t *testing.T) {
 
 func TestAddCurrency_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
+
+	if err := test_utilities.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
 
 	req := httptest.NewRequest(
 		http.MethodPost,
@@ -80,10 +95,13 @@ func TestAddCurrency_success(t *testing.T) {
 		t.Fatalf("expected 201, got %d", rr.Code)
 	}
 
-	var got domain.CurrencyResponse
-	json.NewDecoder(rr.Body).Decode(&got)
+	var got domain.Currency
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v", err)
+	}
 
-	expected := domain.CurrencyResponse{
+	expected := domain.Currency{
+		ID:   3,
 		Code: "RUB",
 		Name: "Russian Ruble",
 		Sign: "₽",

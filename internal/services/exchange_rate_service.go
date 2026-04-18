@@ -33,7 +33,7 @@ func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, target
 	return s.exchangeRateRepository.UpdateExchangeRate(baseCurrency, targetCurrency, rate)
 }
 
-func (s *ExchangeRateService) GetExchangeRatesByCodes(baseCurrencyCode string, targetCurrencyCode string) (domain.ExchangeRate, error) {
+func (s *ExchangeRateService) GetExchangeRateByCodes(baseCurrencyCode string, targetCurrencyCode string) (domain.ExchangeRate, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(baseCurrencyCode)
 	if err != nil {
 		return domain.ExchangeRate{}, err
@@ -43,7 +43,8 @@ func (s *ExchangeRateService) GetExchangeRatesByCodes(baseCurrencyCode string, t
 	if err != nil {
 		return domain.ExchangeRate{}, err
 	}
-	return s.exchangeRateRepository.GetExchangeRatesByCodes(baseCurrency, targetCurrency)
+
+	return s.exchangeRateRepository.GetExchangeRateByCodes(baseCurrency, targetCurrency)
 }
 
 func (s *ExchangeRateService) GetExchangeRates() ([]domain.ExchangeRate, error) {
