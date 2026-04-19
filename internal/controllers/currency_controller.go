@@ -46,10 +46,18 @@ func (c *CurrencyController) getCurrencies(w http.ResponseWriter) {
 func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
+	name := r.FormValue("name")
+	code := r.FormValue("code")
+	sign := r.FormValue("sign")
+
+	if name == "" || code == "" || sign == "" {
+
+	}
+
 	currency := domain.Currency{
-		Name: r.FormValue("name"),
-		Code: r.FormValue("code"),
-		Sign: r.FormValue("sign"),
+		Name: name,
+		Code: code,
+		Sign: sign,
 	}
 
 	res, err := c.service.AddCurrency(currency)

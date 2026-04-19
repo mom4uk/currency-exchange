@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"currency-exchange/internal/domain"
+	"currency-exchange/internal/dto"
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
 	"encoding/json"
@@ -51,7 +51,7 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 		return
 	}
 
-	req := domain.AddExchangeRateRequest{
+	req := dto.AddExchangeRateRequest{
 		BaseCurrencyCode:   r.FormValue("baseCurrencyCode"),
 		TargetCurrencyCode: r.FormValue("targetCurrencyCode"),
 		Rate:               rate,

@@ -2,6 +2,7 @@ package services
 
 import (
 	"currency-exchange/internal/domain"
+	"currency-exchange/internal/dto"
 	"currency-exchange/internal/repositories"
 )
 
@@ -20,23 +21,23 @@ func ExchangeRateServiceNew(
 	}
 }
 
-func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, targetCurrencyCode string, rate float64) (domain.ExchangeRateResponse, error) {
+func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, targetCurrencyCode string, rate float64) (dto.ExchangeRateResponse, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(baseCurrencyCode)
 	if err != nil {
-		return domain.ExchangeRateResponse{}, err
+		return dto.ExchangeRateResponse{}, err
 	}
 
 	targetCurrency, err := s.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
 	if err != nil {
-		return domain.ExchangeRateResponse{}, err
+		return dto.ExchangeRateResponse{}, err
 	}
 
 	result, err := s.exchangeRateRepository.UpdateExchangeRate(baseCurrency, targetCurrency, rate)
 	if err != nil {
-		return domain.ExchangeRateResponse{}, err
+		return dto.ExchangeRateResponse{}, err
 	}
 
-	return domain.ExchangeRateResponse{
+	return dto.ExchangeRateResponse{
 		ID:             result.ID,
 		BaseCurrency:   baseCurrency,
 		TargetCurrency: targetCurrency,
@@ -62,7 +63,7 @@ func (s *ExchangeRateService) GetExchangeRates() ([]domain.ExchangeRate, error) 
 	return s.exchangeRateRepository.GetExchangeRates()
 }
 
-func (s *ExchangeRateService) AddExchangeRates(req domain.AddExchangeRateRequest) (domain.ExchangeRate, error) {
+func (s *ExchangeRateService) AddExchangeRates(req dto.AddExchangeRateRequest) (domain.ExchangeRate, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(req.BaseCurrencyCode)
 	if err != nil {
 		return domain.ExchangeRate{}, err
@@ -76,18 +77,18 @@ func (s *ExchangeRateService) AddExchangeRates(req domain.AddExchangeRateRequest
 	return s.exchangeRateRepository.AddExchangeRates(baseCurrency, targetCurrency, req.Rate)
 }
 
-func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) (domain.ExchangeRateResponse, error) {
+func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) (dto.ExchangeRateResponse, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyById(rate.BaseCurrencyId)
 	if err != nil {
-		return domain.ExchangeRateResponse{}, err
+		return dto.ExchangeRateResponse{}, err
 	}
 
 	targetCurrency, err := s.currencyRepository.GetCurrencyById(rate.TargetCurrencyId)
 	if err != nil {
-		return domain.ExchangeRateResponse{}, err
+		return dto.ExchangeRateResponse{}, err
 	}
 
-	return domain.ExchangeRateResponse{
+	return dto.ExchangeRateResponse{
 		ID:             rate.ID,
 		BaseCurrency:   baseCurrency,
 		TargetCurrency: targetCurrency,
@@ -95,8 +96,8 @@ func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) 
 	}, err
 }
 
-func (s *ExchangeRateService) GetExchangeRatesResponse(rates []domain.ExchangeRate) ([]domain.ExchangeRateResponse, error) {
-	var result []domain.ExchangeRateResponse
+func (s *ExchangeRateService) GetExchangeRatesResponse(rates []domain.ExchangeRate) ([]dto.ExchangeRateResponse, error) {
+	var result []dto.ExchangeRateResponse
 
 	for _, rate := range rates {
 		response, err := s.GetExchangeRateResponse(rate)

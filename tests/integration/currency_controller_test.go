@@ -12,6 +12,7 @@ import (
 	"testing"
 )
 
+// Success for GET /currencies
 func TestGetCurrencies_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
@@ -41,6 +42,7 @@ func TestGetCurrencies_success(t *testing.T) {
 	test_utilities.AssertCurrencies(t, resp, expected)
 }
 
+// Success for GET /currency/{code}
 func TestGetCurrency_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
@@ -73,6 +75,8 @@ func TestGetCurrency_success(t *testing.T) {
 		t.Fatalf("got: %+v, expected: %+v", got, expected)
 	}
 }
+
+// Errors for GET /currency/{code}
 
 func TestGetCurrency_error_absenceOfCurrencyCode(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
@@ -130,6 +134,7 @@ func TestGetCurrency_error_currencyNotFound(t *testing.T) {
 	}
 }
 
+// Success for POST /currency/{code}
 func TestAddCurrency_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
@@ -162,6 +167,39 @@ func TestAddCurrency_success(t *testing.T) {
 		Code: "RUB",
 		Name: "Russian Ruble",
 		Sign: "₽",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+// Errors for POST /currency/{code}
+func TestAddCurrency_error_abscenceOfFormFields(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/currencies",
+		strings.NewReader(""),
+	)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", rr.Code)
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Отсутствуют поле/поля: name, code, sign",
 	}
 
 	if !reflect.DeepEqual(got, expected) {

@@ -3,6 +3,7 @@ package integration
 import (
 	"currency-exchange/db/seeds"
 	"currency-exchange/internal/domain"
+	"currency-exchange/internal/dto"
 	"currency-exchange/internal/test_utilities"
 	"encoding/json"
 	"net/http"
@@ -33,12 +34,12 @@ func TestGetExchangeRates_success(t *testing.T) {
 		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
-	var got []domain.ExchangeRateResponse
+	var got []dto.ExchangeRateResponse
 	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	expected := []domain.ExchangeRateResponse{
+	expected := []dto.ExchangeRateResponse{
 		{
 			ID: 1,
 			BaseCurrency: domain.Currency{
@@ -82,12 +83,12 @@ func TestGetExchangeRate_success(t *testing.T) {
 		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
-	var got domain.ExchangeRateResponse
+	var got dto.ExchangeRateResponse
 	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
 		t.Fatalf("decode error: %v", err)
 	}
 
-	expected := domain.ExchangeRateResponse{
+	expected := dto.ExchangeRateResponse{
 		ID: 1,
 		BaseCurrency: domain.Currency{
 			ID:   1,
@@ -136,12 +137,12 @@ func TestAddExchangeRate_success(t *testing.T) {
 		t.Fatalf("expected 201, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
-	var got domain.ExchangeRateResponse
+	var got dto.ExchangeRateResponse
 	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
 		t.Fatalf("decode error: %v", err)
 	}
 
-	expected := domain.ExchangeRateResponse{
+	expected := dto.ExchangeRateResponse{
 		ID: 1,
 		BaseCurrency: domain.Currency{
 			ID:   1,
@@ -192,12 +193,12 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
-	var got domain.ExchangeRateResponse
+	var got dto.ExchangeRateResponse
 	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
 		t.Fatalf("decode error: %v", err)
 	}
 
-	expected := domain.ExchangeRateResponse{
+	expected := dto.ExchangeRateResponse{
 		ID: 1,
 		BaseCurrency: domain.Currency{
 			ID:   1,
