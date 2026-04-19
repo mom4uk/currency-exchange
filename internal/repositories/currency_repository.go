@@ -3,6 +3,7 @@ package repositories
 import (
 	"currency-exchange/internal/domain"
 	"database/sql"
+	"errors"
 )
 
 type CurrencyRepository struct {
@@ -73,8 +74,8 @@ func (r *CurrencyRepository) GetCurrencyByCode(code string) (domain.Currency, er
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return domain.Currency{}, sql.ErrNoRows
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Currency{}, domain.ErrCurrencyNotFound
 		}
 		return domain.Currency{}, err
 	}

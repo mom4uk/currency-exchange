@@ -74,6 +74,62 @@ func TestGetCurrency_success(t *testing.T) {
 	}
 }
 
+func TestGetCurrency_error_absenceOfCurrencyCode(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/currency/", nil)
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", rr.Code)
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v", err)
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Вы не передали код валюты",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+func TestGetCurrency_error_currencyNotFound(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/currency/EUR", nil)
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rr.Code)
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Такая валюта не найдена",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
 func TestAddCurrency_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 

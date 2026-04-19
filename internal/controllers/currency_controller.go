@@ -4,7 +4,6 @@ import (
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
-	"database/sql"
 	"encoding/json"
 	"net/http"
 )
@@ -69,20 +68,21 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 }
 
 func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request) {
-	currencyCode := utilities.GetLastPathSegment(r.URL.Path)
+	currencyCode, err := utilities.GetLastPathSegment(r.URL.Path)
+	if err != nil {
+		utilities.HandleError(w, err)
+		return
+	}
+
 	currency, err := c.service.GetCurrencyByCode(currencyCode)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(currency); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 }
