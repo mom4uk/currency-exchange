@@ -63,6 +63,12 @@ func HandleError(w http.ResponseWriter, err error) {
 		WriteError(w, "Неверный формат кода", http.StatusBadRequest)
 		return
 
+	case errors.Is(err, domain.ErrAbsenceOfField):
+		WriteError(w, "Отстутствует одно из обязательных полей: name, code, sign", http.StatusBadRequest)
+
+	case errors.Is(err, domain.ErrCurrencyAlreadyExists):
+		WriteError(w, "Такая валюта уже существует", http.StatusConflict)
+
 	default:
 		WriteError(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -4,6 +4,7 @@ import (
 	"currency-exchange/internal/domain"
 	"database/sql"
 	"errors"
+	"strings"
 )
 
 type CurrencyRepository struct {
@@ -50,6 +51,9 @@ func (r *CurrencyRepository) AddCurrency(c domain.Currency) (domain.Currency, er
 
 	res, err := r.db.Exec(query, c.Name, c.Code, c.Sign)
 	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return domain.Currency{}, domain.ErrCurrencyAlreadyExists
+		}
 		return domain.Currency{}, err
 	}
 

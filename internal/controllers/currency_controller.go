@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"currency-exchange/internal/domain"
+	"currency-exchange/internal/dto"
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
 	"encoding/json"
@@ -50,20 +51,27 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 	code := r.FormValue("code")
 	sign := r.FormValue("sign")
 
-	if name == "" || code == "" || sign == "" {
-
-	}
-
-	currency := domain.Currency{
+	req := dto.CurrencyRequest{
 		Name: name,
 		Code: code,
 		Sign: sign,
 	}
 
+	if err := dto.ValidateFields(req); err != nil {
+		utilities.HandleError(w, err)
+		return
+	}
+
+	currency := domain.Currency{
+		Name: req.Name,
+		Code: req.Code,
+		Sign: req.Sign,
+	}
+
 	res, err := c.service.AddCurrency(currency)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 

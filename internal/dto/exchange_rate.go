@@ -2,12 +2,6 @@ package dto
 
 import "currency-exchange/internal/domain"
 
-type CurrencyResponse struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
-	Sign string `json:"sign"`
-}
-
 type AddExchangeRateRequest struct {
 	BaseCurrencyCode   string
 	TargetCurrencyCode string

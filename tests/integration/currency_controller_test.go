@@ -26,7 +26,7 @@ func TestGetCurrencies_success(t *testing.T) {
 	app.Server.GetMux().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
-		t.Fatalf("expected: 200, got: %d", rr.Code)
+		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
 	var resp []domain.Currency
@@ -56,7 +56,7 @@ func TestGetCurrency_success(t *testing.T) {
 	app.Server.GetMux().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", rr.Code)
+		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
 	var got domain.Currency
@@ -91,7 +91,7 @@ func TestGetCurrency_error_absenceOfCurrencyCode(t *testing.T) {
 	app.Server.GetMux().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
-		t.Fatalf("expected 400, got %d", rr.Code)
+		t.Fatalf("expected 400, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
 	var got domain.ErrorResponse
@@ -117,7 +117,7 @@ func TestGetCurrency_error_currencyNotFound(t *testing.T) {
 	app.Server.GetMux().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusNotFound {
-		t.Fatalf("expected 404, got %d", rr.Code)
+		t.Fatalf("expected 404, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
 	var got domain.ErrorResponse
@@ -154,7 +154,7 @@ func TestAddCurrency_success(t *testing.T) {
 	app.Server.GetMux().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusCreated {
-		t.Fatalf("expected 201, got %d", rr.Code)
+		t.Fatalf("expected 201, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
 	var got domain.Currency
@@ -181,7 +181,7 @@ func TestAddCurrency_error_abscenceOfFormFields(t *testing.T) {
 	req := httptest.NewRequest(
 		http.MethodPost,
 		"/currencies",
-		strings.NewReader(""),
+		strings.NewReader("name=Russian+Ruble"),
 	)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -190,7 +190,7 @@ func TestAddCurrency_error_abscenceOfFormFields(t *testing.T) {
 	app.Server.GetMux().ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
-		t.Fatalf("expected 400, got %d", rr.Code)
+		t.Fatalf("expected 400, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
 	var got domain.ErrorResponse
@@ -199,7 +199,43 @@ func TestAddCurrency_error_abscenceOfFormFields(t *testing.T) {
 	}
 
 	expected := domain.ErrorResponse{
-		Message: "Отсутствуют поле/поля: name, code, sign",
+		Message: "Отстутствует одно из обязательных полей: name, code, sign",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+func TestAddCurrency_error_currencyAlreadyExists(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/currencies",
+		strings.NewReader("name=Euro&code=EUR&sign=€"),
+	)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusConflict {
+		t.Fatalf("expected 409, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Такая валюта уже существует",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
