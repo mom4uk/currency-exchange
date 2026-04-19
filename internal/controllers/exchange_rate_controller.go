@@ -44,28 +44,38 @@ func (e *ExchangeRateController) HandleExchangeRate(w http.ResponseWriter, r *ht
 func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	rate, err := strconv.ParseFloat(r.FormValue("rate"), 64)
+	req := dto.AddExchangeRateRequest{
+		BaseCurrencyCode:   r.FormValue("baseCurrencyCode"),
+		TargetCurrencyCode: r.FormValue("targetCurrencyCode"),
+		Rate:               r.FormValue("rate"),
+	}
 
+	if err := dto.ValidateExchangeRateFields(req); err != nil {
+		utilities.HandleError(w, err)
+		return
+	}
+
+	rate, err := strconv.ParseFloat(r.FormValue("rate"), 64)
 	if err != nil {
 		http.Error(w, "Invalid rate", http.StatusInternalServerError)
 		return
 	}
 
-	req := dto.AddExchangeRateRequest{
-		BaseCurrencyCode:   r.FormValue("baseCurrencyCode"),
-		TargetCurrencyCode: r.FormValue("targetCurrencyCode"),
+	exchangeRate := dto.ExchangeRate{
+		BaseCurrencyCode:   req.BaseCurrencyCode,
+		TargetCurrencyCode: req.TargetCurrencyCode,
 		Rate:               rate,
 	}
 
-	exchangeRate, err := e.service.AddExchangeRates(req)
+	result, err := e.service.AddExchangeRates(exchangeRate)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
-	res, err := e.service.GetExchangeRateResponse(exchangeRate)
+	res, err := e.service.GetExchangeRateResponse(result)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
@@ -77,7 +87,7 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 func (e *ExchangeRateController) getExchangeRates(w http.ResponseWriter) {
 	rates, err := e.service.GetExchangeRates()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
@@ -89,19 +99,19 @@ func (e *ExchangeRateController) getExchangeRates(w http.ResponseWriter) {
 func (e *ExchangeRateController) getExchangeRate(w http.ResponseWriter, r *http.Request) {
 	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
 	rate, err := e.service.GetExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
 	response, err := e.service.GetExchangeRateResponse(rate)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
@@ -113,7 +123,7 @@ func (e *ExchangeRateController) patchExchangeRate(w http.ResponseWriter, r *htt
 
 	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
@@ -121,7 +131,7 @@ func (e *ExchangeRateController) patchExchangeRate(w http.ResponseWriter, r *htt
 
 	rate, err := e.service.UpdateExchangeRate(baseCurrencyCode, targetCurrencyCode, rateValue)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 

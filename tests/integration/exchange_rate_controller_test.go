@@ -14,6 +14,7 @@ import (
 	"testing"
 )
 
+// Success for GET /exchangeRates
 func TestGetExchangeRates_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
@@ -63,6 +64,7 @@ func TestGetExchangeRates_success(t *testing.T) {
 	}
 }
 
+// Success for GET /exchangeRate/{code}
 func TestGetExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
@@ -110,6 +112,64 @@ func TestGetExchangeRate_success(t *testing.T) {
 	}
 }
 
+// Errors for GET /exchangeRate/{code}
+func TestGetExchangeRate_error_absenceOfCodes(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/exchangeRate/", nil)
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Вы не передали код валюты",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+func TestGetExchangeRate_error_exchangeRateNotFound(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/exchangeRate/EURUSD", nil)
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Такой обменный курс не найден",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+// Success for POST /exchangeRates
 func TestAddExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
@@ -164,6 +224,137 @@ func TestAddExchangeRate_success(t *testing.T) {
 	}
 }
 
+// Errors for POST /exchangeRates
+func TestPostExchangeRate_error_currencyNotFound(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedRubCurrency(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	form := url.Values{}
+
+	form.Add("baseCurrencyCode", "USD")
+	form.Add("targetCurrencyCode", "RUB")
+	form.Add("rate", "0.99")
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/exchangeRates",
+		strings.NewReader(form.Encode()),
+	)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Такая валюта не найдена",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+func TestPostExchangeRate_error_absenceOfCodes(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	form := url.Values{}
+	form.Add("baseCurrencyCode", "USD")
+	form.Add("rate", "0.99")
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/exchangeRates",
+		strings.NewReader(form.Encode()),
+	)
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Отстутствует одно из обязательных полей: baseCurrencyCode, targetCurrencyCode, rate",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+func TestPostExchangeRate_error_exchangeRateAlreadyExists(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	form := url.Values{}
+	form.Add("baseCurrencyCode", "USD")
+	form.Add("targetCurrencyCode", "EUR")
+	form.Add("rate", "0.99")
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/exchangeRates",
+		strings.NewReader(form.Encode()),
+	)
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusConflict {
+		t.Fatalf("expected 409, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Такой обменный курс уже существует",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+// Errors for PATCH /exchangeRates/{code}
 func TestUpdateExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 

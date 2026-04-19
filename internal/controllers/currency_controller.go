@@ -57,7 +57,7 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 		Sign: sign,
 	}
 
-	if err := dto.ValidateFields(req); err != nil {
+	if err := dto.ValidateCurrencyFields(req); err != nil {
 		utilities.HandleError(w, err)
 		return
 	}

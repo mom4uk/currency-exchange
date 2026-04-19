@@ -63,7 +63,7 @@ func (s *ExchangeRateService) GetExchangeRates() ([]domain.ExchangeRate, error) 
 	return s.exchangeRateRepository.GetExchangeRates()
 }
 
-func (s *ExchangeRateService) AddExchangeRates(req dto.AddExchangeRateRequest) (domain.ExchangeRate, error) {
+func (s *ExchangeRateService) AddExchangeRates(req dto.ExchangeRate) (domain.ExchangeRate, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(req.BaseCurrencyCode)
 	if err != nil {
 		return domain.ExchangeRate{}, err

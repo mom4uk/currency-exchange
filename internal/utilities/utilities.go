@@ -60,14 +60,23 @@ func HandleError(w http.ResponseWriter, err error) {
 		return
 
 	case errors.Is(err, domain.ErrIncorrectLengthOfCode):
-		WriteError(w, "Неверный формат кода", http.StatusBadRequest)
+		WriteError(w, "Отсутствие или неверный формат кодов валют", http.StatusBadRequest)
 		return
 
-	case errors.Is(err, domain.ErrAbsenceOfField):
+	case errors.Is(err, domain.ErrAbsenceOfCurrencyField):
 		WriteError(w, "Отстутствует одно из обязательных полей: name, code, sign", http.StatusBadRequest)
 
 	case errors.Is(err, domain.ErrCurrencyAlreadyExists):
 		WriteError(w, "Такая валюта уже существует", http.StatusConflict)
+
+	case errors.Is(err, domain.ErrExchangeRateNotFound):
+		WriteError(w, "Такой обменный курс не найден", http.StatusNotFound)
+
+	case errors.Is(err, domain.ErrExchangeRateAlreadyExists):
+		WriteError(w, "Такой обменный курс уже существует", http.StatusConflict)
+
+	case errors.Is(err, domain.ErrAbsenceOfExchangeRateField):
+		WriteError(w, "Отстутствует одно из обязательных полей: baseCurrencyCode, targetCurrencyCode, rate", http.StatusBadRequest)
 
 	default:
 		WriteError(w, err.Error(), http.StatusInternalServerError)

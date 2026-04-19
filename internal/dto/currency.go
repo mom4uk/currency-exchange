@@ -14,9 +14,9 @@ type CurrencyRequest struct {
 	Sign string `json:"sign"`
 }
 
-func ValidateFields(req CurrencyRequest) error {
+func ValidateCurrencyFields(req CurrencyRequest) error {
 	if req.Code == "" || req.Name == "" || req.Sign == "" {
-		return domain.ErrAbsenceOfField
+		return domain.ErrAbsenceOfCurrencyField
 	}
 	return nil
 }

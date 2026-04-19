@@ -76,7 +76,7 @@ func TestExchange_success_reverseRate(t *testing.T) {
 
 	req := httptest.NewRequest(
 		http.MethodGet,
-		"/exchange?from=USD&to=EUR&amount=10",
+		"/exchange?from=EUR&to=USD&amount=10",
 		nil,
 	)
 
@@ -90,14 +90,14 @@ func TestExchange_success_reverseRate(t *testing.T) {
 	var got domain.CurencyExchange
 	json.NewDecoder(rr.Body).Decode(&got)
 
-	expectedRate := 0.5
+	expectedRate := 2.0
 
 	if got.Rate != expectedRate {
 		t.Fatalf("expected rate %v, got %v", expectedRate, got.Rate)
 	}
 
-	if got.ConvertedAmount != 5 {
-		t.Fatalf("expected 5, got %v", got.ConvertedAmount)
+	if got.ConvertedAmount != 20 {
+		t.Fatalf("expected 20, got %v", got.ConvertedAmount)
 	}
 }
 

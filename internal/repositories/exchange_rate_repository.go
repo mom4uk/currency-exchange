@@ -3,6 +3,7 @@ package repositories
 import (
 	"currency-exchange/internal/domain"
 	"database/sql"
+	"strings"
 )
 
 type ExchangeRateRepository struct {
@@ -18,6 +19,9 @@ func (r *ExchangeRateRepository) AddExchangeRates(baseCurrency domain.Currency, 
 
 	res, err := r.db.Exec(query, baseCurrency.ID, targetCurrency.ID, rate)
 	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return domain.ExchangeRate{}, domain.ErrExchangeRateAlreadyExists
+		}
 		return domain.ExchangeRate{}, err
 	}
 
@@ -91,7 +95,7 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return domain.ExchangeRate{}, false, nil
+			return domain.ExchangeRate{}, false, domain.ErrExchangeRateNotFound
 		}
 		return domain.ExchangeRate{}, false, err
 	}
