@@ -45,7 +45,10 @@ func (c *CurrencyController) getCurrencies(w http.ResponseWriter) {
 }
 
 func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	name := r.FormValue("name")
 	code := r.FormValue("code")

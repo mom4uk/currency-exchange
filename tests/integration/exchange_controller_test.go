@@ -88,7 +88,9 @@ func TestExchange_success_reverseRate(t *testing.T) {
 	}
 
 	var got domain.CurencyExchange
-	json.NewDecoder(rr.Body).Decode(&got)
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 
 	expectedRate := 2.0
 
@@ -130,7 +132,9 @@ func TestExchange_success_viaUSD(t *testing.T) {
 	}
 
 	var got domain.CurencyExchange
-	json.NewDecoder(rr.Body).Decode(&got)
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 
 	expectedRate := 200.0
 

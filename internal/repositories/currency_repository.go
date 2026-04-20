@@ -4,6 +4,7 @@ import (
 	"currency-exchange/internal/domain"
 	"database/sql"
 	"errors"
+	"log"
 	"strings"
 )
 
@@ -23,7 +24,11 @@ func (r CurrencyRepository) GetCurrencies() ([]domain.Currency, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("rows close error: %v", err)
+		}
+	}()
 
 	result := []domain.Currency{}
 
@@ -41,6 +46,10 @@ func (r CurrencyRepository) GetCurrencies() ([]domain.Currency, error) {
 		}
 
 		result = append(result, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return result, nil
