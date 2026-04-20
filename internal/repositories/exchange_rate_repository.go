@@ -70,6 +70,7 @@ func (r *ExchangeRateRepository) GetExchangeRates() ([]domain.ExchangeRate, erro
 	return result, nil
 }
 
+// зачем мне это?
 func (r *ExchangeRateRepository) GetExchangeRateByCodes(baseCurrency domain.Currency, targetCurrency domain.Currency) (domain.ExchangeRate, error) {
 	rate, _, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
 	if err != nil {
@@ -95,7 +96,7 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return domain.ExchangeRate{}, false, domain.ErrExchangeRateNotFound
+			return domain.ExchangeRate{}, false, nil
 		}
 		return domain.ExchangeRate{}, false, err
 	}
