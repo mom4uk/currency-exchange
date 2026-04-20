@@ -35,7 +35,7 @@ func (e *ExchangeRateController) HandleExchangeRate(w http.ResponseWriter, r *ht
 	case "GET":
 		e.getExchangeRate(w, r)
 	case "PATCH":
-		e.patchExchangeRate(w, r)
+		e.updateExchangeRate(w, r)
 	default:
 		http.Error(w, "This method is not allowed", http.StatusMethodNotAllowed)
 	}
@@ -118,11 +118,20 @@ func (e *ExchangeRateController) getExchangeRate(w http.ResponseWriter, r *http.
 	json.NewEncoder(w).Encode(response)
 }
 
-func (e *ExchangeRateController) patchExchangeRate(w http.ResponseWriter, r *http.Request) {
+func (e *ExchangeRateController) updateExchangeRate(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
 	if err != nil {
+		utilities.HandleError(w, err)
+		return
+	}
+
+	req := dto.UpdateExchangeRateRequest{
+		Rate: r.FormValue("rate"),
+	}
+
+	if err := dto.ValidateExchangeRateFieldsForUpdate(req); err != nil {
 		utilities.HandleError(w, err)
 		return
 	}

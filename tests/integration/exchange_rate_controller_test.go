@@ -267,7 +267,7 @@ func TestPostExchangeRate_error_currencyNotFound(t *testing.T) {
 	}
 }
 
-func TestPostExchangeRate_error_absenceOfCodes(t *testing.T) {
+func TestPostExchangeRate_error_absenceOfFields(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
 	if err := seeds.SeedCurrencies(app.DB); err != nil {
@@ -354,7 +354,7 @@ func TestPostExchangeRate_error_exchangeRateAlreadyExists(t *testing.T) {
 	}
 }
 
-// Errors for PATCH /exchangeRates/{code}
+// Success for PATCH /exchangeRates/{code}
 func TestUpdateExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
@@ -408,5 +408,85 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Fatalf("got: %+v\nexpected: %+v", got, expected)
+	}
+}
+
+// Errors for PATCH /exchangeRates/{code}
+
+func TestPatchExchangeRate_error_absenceOfFields(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	form := url.Values{}
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		"/exchangeRate/USDEUR",
+		strings.NewReader(form.Encode()),
+	)
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Отстутствует обязательное поле: rate",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
+	}
+}
+
+func TestPatchExchangeRate_error_currencyNotFound(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	form := url.Values{}
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		"/exchangeRate/USDEUR",
+		strings.NewReader(form.Encode()),
+	)
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 404, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var got domain.ErrorResponse
+	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
+		t.Fatalf("decode error: %v\nbody: %s", err, rr.Body.String())
+	}
+
+	expected := domain.ErrorResponse{
+		Message: "Отстутствует обязательное поле: rate",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Fatalf("got: %+v, expected: %+v", got, expected)
 	}
 }

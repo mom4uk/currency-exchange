@@ -78,6 +78,9 @@ func HandleError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrAbsenceOfExchangeRateField):
 		WriteError(w, "Отстутствует одно из обязательных полей: baseCurrencyCode, targetCurrencyCode, rate", http.StatusBadRequest)
 
+	case errors.Is(err, domain.ErrAbsenceOfExchangeRateFieldForUpdate):
+		WriteError(w, "Отстутствует обязательное поле: rate", http.StatusBadRequest)
+
 	default:
 		WriteError(w, err.Error(), http.StatusInternalServerError)
 		return

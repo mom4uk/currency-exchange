@@ -21,9 +21,20 @@ type ExchangeRateResponse struct {
 	Rate           float64         `json:"rate"`
 }
 
+type UpdateExchangeRateRequest struct {
+	Rate string
+}
+
 func ValidateExchangeRateFields(req AddExchangeRateRequest) error {
 	if req.BaseCurrencyCode == "" || req.TargetCurrencyCode == "" || req.Rate == "" {
 		return domain.ErrAbsenceOfExchangeRateField
+	}
+	return nil
+}
+
+func ValidateExchangeRateFieldsForUpdate(req UpdateExchangeRateRequest) error {
+	if req.Rate == "" {
+		return domain.ErrAbsenceOfExchangeRateFieldForUpdate
 	}
 	return nil
 }
