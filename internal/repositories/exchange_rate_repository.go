@@ -70,20 +70,6 @@ func (r *ExchangeRateRepository) GetExchangeRates() ([]domain.ExchangeRate, erro
 	return result, nil
 }
 
-// зачем мне это?
-func (r *ExchangeRateRepository) GetExchangeRateByCodes(baseCurrency domain.Currency, targetCurrency domain.Currency) (domain.ExchangeRate, error) {
-	rate, _, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
-	if err != nil {
-		return domain.ExchangeRate{}, err
-	}
-	return domain.ExchangeRate{
-		ID:               int(rate.ID),
-		BaseCurrencyId:   baseCurrency.ID,
-		TargetCurrencyId: targetCurrency.ID,
-		Rate:             rate.Rate,
-	}, nil
-}
-
 func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurrencyId int) (domain.ExchangeRate, bool, error) {
 	var e domain.ExchangeRate
 	query := `SELECT id, base_currency_id, target_currency_id, rate FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?`
@@ -104,7 +90,10 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 }
 
 func (r *ExchangeRateRepository) UpdateExchangeRate(baseCurrency domain.Currency, targetCurrency domain.Currency, rate float64) (domain.ExchangeRate, error) {
-	exchangeRate, err := r.GetExchangeRateByCodes(baseCurrency, targetCurrency)
+	exchangeRate, found, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
+	if !found {
+		return domain.ExchangeRate{}, domain.ErrExchangeRateNotFound
+	}
 	if err != nil {
 		return domain.ExchangeRate{}, err
 	}
