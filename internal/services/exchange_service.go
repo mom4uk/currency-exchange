@@ -1,8 +1,9 @@
 package services
 
 import (
-	"currency-exchange/internal/domain"
+	"currency-exchange/internal/dto"
 	"currency-exchange/internal/repositories"
+	"math/big"
 )
 
 type ExchangeService struct {
@@ -23,75 +24,88 @@ func ExchangeServiceNew(
 func (e *ExchangeService) GetExchange(
 	baseCurrencyCode string,
 	targetCurrencyCode string,
-	amount float64,
-) (domain.CurencyExchange, error) {
+	amount *big.Rat,
+) (dto.CurencyExchangeResponse, error) {
 
 	baseCurrency, err := e.currencyRepository.GetCurrencyByCode(baseCurrencyCode)
 	if err != nil {
-		return domain.CurencyExchange{}, err
+		return dto.CurencyExchangeResponse{}, err
+	}
+	baseCurrencyResponce := dto.CurrencyResponse{
+		Code: baseCurrency.Code,
+		Name: baseCurrency.Name,
+		Sign: baseCurrency.Sign,
 	}
 
 	targetCurrency, err := e.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
 	if err != nil {
-		return domain.CurencyExchange{}, err
+		return dto.CurencyExchangeResponse{}, err
+	}
+	targetCurrencyResponce := dto.CurrencyResponse{
+		Code: targetCurrency.Code,
+		Name: targetCurrency.Name,
+		Sign: targetCurrency.Sign,
 	}
 
 	rate, found, err := e.exchangeRateRepository.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
 	if err != nil {
-		return domain.CurencyExchange{}, err
+		return dto.CurencyExchangeResponse{}, err
 	}
 	if found {
-		return domain.CurencyExchange{
-			BaseCurrency:    baseCurrency,
-			TargetCurrency:  targetCurrency,
-			Rate:            rate.Rate,
-			Amount:          amount,
-			ConvertedAmount: amount * rate.Rate,
+		return dto.CurencyExchangeResponse{
+			BaseCurrency:    baseCurrencyResponce,
+			TargetCurrency:  targetCurrencyResponce,
+			Rate:            rate.Rate.FloatString(2),
+			Amount:          amount.FloatString(2),
+			ConvertedAmount: new(big.Rat).Mul(amount, rate.Rate).FloatString(2),
 		}, nil
 	}
 
 	rate, found, err = e.exchangeRateRepository.GetExchangeRate(targetCurrency.ID, baseCurrency.ID)
 	if err != nil {
-		return domain.CurencyExchange{}, err
+		return dto.CurencyExchangeResponse{}, err
 	}
 	if found {
-		invertedRate := 1 / rate.Rate
+		one := big.NewRat(1, 1)
 
-		return domain.CurencyExchange{
-			BaseCurrency:    baseCurrency,
-			TargetCurrency:  targetCurrency,
-			Rate:            invertedRate,
-			Amount:          amount,
-			ConvertedAmount: amount * invertedRate,
+		invertedRate := new(big.Rat).Quo(one, rate.Rate)
+
+		return dto.CurencyExchangeResponse{
+			BaseCurrency:    baseCurrencyResponce,
+			TargetCurrency:  targetCurrencyResponce,
+			Rate:            invertedRate.FloatString(2),
+			Amount:          amount.FloatString(2),
+			ConvertedAmount: new(big.Rat).Mul(amount, invertedRate).FloatString(2),
 		}, nil
 	}
 
 	usdCurrency, err := e.currencyRepository.GetCurrencyByCode("USD")
 	if err != nil {
-		return domain.CurencyExchange{}, err
+		return dto.CurencyExchangeResponse{}, err
 	}
 
 	baseToUsd, baseFound, err := e.exchangeRateRepository.GetExchangeRate(usdCurrency.ID, baseCurrency.ID)
 	if err != nil {
-		return domain.CurencyExchange{}, err
+		return dto.CurencyExchangeResponse{}, err
 	}
 
 	targetToUsd, targetFound, err := e.exchangeRateRepository.GetExchangeRate(usdCurrency.ID, targetCurrency.ID)
 	if err != nil {
-		return domain.CurencyExchange{}, err
+		return dto.CurencyExchangeResponse{}, err
 	}
 
 	if baseFound && targetFound {
-		crossRate := targetToUsd.Rate / baseToUsd.Rate
+		crossRate := new(big.Rat).Quo(targetToUsd.Rate, baseToUsd.Rate)
+		converted := new(big.Rat).Mul(amount, crossRate)
 
-		return domain.CurencyExchange{
-			BaseCurrency:    baseCurrency,
-			TargetCurrency:  targetCurrency,
-			Rate:            crossRate,
-			Amount:          amount,
-			ConvertedAmount: amount * crossRate,
+		return dto.CurencyExchangeResponse{
+			BaseCurrency:    baseCurrencyResponce,
+			TargetCurrency:  targetCurrencyResponce,
+			Rate:            crossRate.FloatString(2),
+			Amount:          amount.FloatString(2),
+			ConvertedAmount: converted.FloatString(2),
 		}, nil
 	}
 
-	return domain.CurencyExchange{}, err
+	return dto.CurencyExchangeResponse{}, err
 }

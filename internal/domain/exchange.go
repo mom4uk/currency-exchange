@@ -1,9 +1,17 @@
 package domain
 
+import "math/big"
+
 type CurencyExchange struct {
 	BaseCurrency    Currency `json:"baseCurrency"`
 	TargetCurrency  Currency `json:"targetCurrency"`
-	Rate            float64  `json:"rate"`
-	Amount          float64  `json:"amount"`
-	ConvertedAmount float64  `json:"convertedAmount"`
+	Rate            *big.Rat `json:"rate"`
+	Amount          *big.Rat `json:"amount"`
+	ConvertedAmount *big.Rat `json:"convertedAmount"`
+}
+
+type Exchange struct {
+	BaseCurrencyCode   string
+	TargetCurrencyCode string
+	Rate               *big.Rat
 }

@@ -3,6 +3,7 @@ package repositories
 import (
 	"currency-exchange/internal/domain"
 	"database/sql"
+	"math/big"
 	"strings"
 )
 
@@ -14,7 +15,7 @@ func ExchangeRateRepositoryNew(db *sql.DB) *ExchangeRateRepository {
 	return &ExchangeRateRepository{db: db}
 }
 
-func (r *ExchangeRateRepository) AddExchangeRates(baseCurrency domain.Currency, targetCurrency domain.Currency, rate float64) (domain.ExchangeRate, error) {
+func (r *ExchangeRateRepository) AddExchangeRates(baseCurrency domain.Currency, targetCurrency domain.Currency, rate *big.Rat) (domain.ExchangeRate, error) {
 	query := `INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)`
 
 	res, err := r.db.Exec(query, baseCurrency.ID, targetCurrency.ID, rate)
@@ -89,7 +90,7 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 	return e, true, nil
 }
 
-func (r *ExchangeRateRepository) UpdateExchangeRate(baseCurrency domain.Currency, targetCurrency domain.Currency, rate float64) (domain.ExchangeRate, error) {
+func (r *ExchangeRateRepository) UpdateExchangeRate(baseCurrency domain.Currency, targetCurrency domain.Currency, rate *big.Rat) (domain.ExchangeRate, error) {
 	exchangeRate, found, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
 	if !found {
 		return domain.ExchangeRate{}, domain.ErrExchangeRateNotFound

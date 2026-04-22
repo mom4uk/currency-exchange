@@ -1,6 +1,8 @@
 package dto
 
-import "currency-exchange/internal/domain"
+import (
+	"currency-exchange/internal/domain"
+)
 
 type AddExchangeRateRequest struct {
 	BaseCurrencyCode   string
@@ -8,17 +10,11 @@ type AddExchangeRateRequest struct {
 	Rate               string
 }
 
-type ExchangeRate struct {
-	BaseCurrencyCode   string
-	TargetCurrencyCode string
-	Rate               float64
-}
-
 type ExchangeRateResponse struct {
-	ID             int             `json:"id"`
-	BaseCurrency   domain.Currency `json:"baseCurrency"`
-	TargetCurrency domain.Currency `json:"targetCurrency"`
-	Rate           float64         `json:"rate"`
+	ID             int              `json:"id"`
+	BaseCurrency   CurrencyResponse `json:"baseCurrency"`
+	TargetCurrency CurrencyResponse `json:"targetCurrency"`
+	Rate           string           `json:"rate"`
 }
 
 type UpdateExchangeRateRequest struct {

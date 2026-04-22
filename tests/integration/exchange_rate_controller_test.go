@@ -43,19 +43,19 @@ func TestGetExchangeRates_success(t *testing.T) {
 	expected := []dto.ExchangeRateResponse{
 		{
 			ID: 1,
-			BaseCurrency: domain.Currency{
-				ID:   1,
+			BaseCurrency: dto.CurrencyResponse{
+				ID:   "1",
 				Code: "USD",
 				Name: "United States dollar",
 				Sign: "$",
 			},
-			TargetCurrency: domain.Currency{
-				ID:   2,
+			TargetCurrency: dto.CurrencyResponse{
+				ID:   "2",
 				Code: "EUR",
 				Name: "Euro",
 				Sign: "€",
 			},
-			Rate: 0.99,
+			Rate: "0.99",
 		},
 	}
 
@@ -92,19 +92,19 @@ func TestGetExchangeRate_success(t *testing.T) {
 
 	expected := dto.ExchangeRateResponse{
 		ID: 1,
-		BaseCurrency: domain.Currency{
-			ID:   1,
+		BaseCurrency: dto.CurrencyResponse{
+			ID:   "1",
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
-		TargetCurrency: domain.Currency{
-			ID:   2,
+		TargetCurrency: dto.CurrencyResponse{
+			ID:   "2",
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: 0.99,
+		Rate: "0.99",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -204,19 +204,19 @@ func TestAddExchangeRate_success(t *testing.T) {
 
 	expected := dto.ExchangeRateResponse{
 		ID: 1,
-		BaseCurrency: domain.Currency{
-			ID:   1,
+		BaseCurrency: dto.CurrencyResponse{
+			ID:   "1",
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
-		TargetCurrency: domain.Currency{
-			ID:   2,
+		TargetCurrency: dto.CurrencyResponse{
+			ID:   "2",
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: 0.99,
+		Rate: "0.99",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -391,19 +391,19 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 
 	expected := dto.ExchangeRateResponse{
 		ID: 1,
-		BaseCurrency: domain.Currency{
-			ID:   1,
+		BaseCurrency: dto.CurrencyResponse{
+			ID:   "1",
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
-		TargetCurrency: domain.Currency{
-			ID:   2,
+		TargetCurrency: dto.CurrencyResponse{
+			ID:   "2",
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: 0.98,
+		Rate: "0.98",
 	}
 
 	if !reflect.DeepEqual(got, expected) {

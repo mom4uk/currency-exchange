@@ -1,12 +1,13 @@
 package controllers
 
 import (
+	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
 	"encoding/json"
+	"math/big"
 	"net/http"
-	"strconv"
 )
 
 type ExchangeRateController struct {
@@ -58,13 +59,17 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 		return
 	}
 
-	rate, err := strconv.ParseFloat(r.FormValue("rate"), 64)
-	if err != nil {
-		http.Error(w, "Invalid rate", http.StatusInternalServerError)
+	rateStr := r.URL.Query().Get("rate")
+
+	rate := new(big.Rat)
+
+	_, ok := rate.SetString(rateStr)
+	if !ok {
+		utilities.WriteError(w, "Неверная сумма", http.StatusBadRequest)
 		return
 	}
 
-	exchangeRate := dto.ExchangeRate{
+	exchangeRate := domain.Exchange{
 		BaseCurrencyCode:   req.BaseCurrencyCode,
 		TargetCurrencyCode: req.TargetCurrencyCode,
 		Rate:               rate,
@@ -154,10 +159,11 @@ func (e *ExchangeRateController) updateExchangeRate(w http.ResponseWriter, r *ht
 		utilities.HandleError(w, err)
 		return
 	}
-
-	rateValue, err := strconv.ParseFloat(r.FormValue("rate"), 64)
-	if err != nil {
-		utilities.HandleError(w, err)
+	rateStr := r.FormValue("rate")
+	rateValue := new(big.Rat)
+	_, ok := rateValue.SetString(rateStr)
+	if !ok {
+		http.Error(w, "Ошибка в rate", http.StatusInternalServerError)
 		return
 	}
 

@@ -3,6 +3,7 @@ package integration
 import (
 	"currency-exchange/db/seeds"
 	"currency-exchange/internal/domain"
+	"currency-exchange/internal/dto"
 	"currency-exchange/internal/test_utilities"
 	"encoding/json"
 	"net/http"
@@ -40,22 +41,22 @@ func TestExchange_success_directRate(t *testing.T) {
 		t.Fatalf("decode error: %v", err)
 	}
 
-	expected := domain.CurencyExchange{
-		BaseCurrency: domain.Currency{
-			ID:   1,
+	expected := dto.CurencyExchangeResponse{
+		BaseCurrency: dto.CurrencyResponse{
+			ID:   "1",
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
-		TargetCurrency: domain.Currency{
-			ID:   2,
+		TargetCurrency: dto.CurrencyResponse{
+			ID:   "2",
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate:            0.99,
-		Amount:          10,
-		ConvertedAmount: 9.9,
+		Rate:            "0.99",
+		Amount:          "10.00",
+		ConvertedAmount: "9.90",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -87,19 +88,19 @@ func TestExchange_success_reverseRate(t *testing.T) {
 		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
-	var got domain.CurencyExchange
+	var got dto.CurencyExchangeResponse
 	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	expectedRate := 2.0
+	expectedRate := "2.00"
 
 	if got.Rate != expectedRate {
 		t.Fatalf("expected rate %v, got %v", expectedRate, got.Rate)
 	}
 
-	if got.ConvertedAmount != 20 {
-		t.Fatalf("expected 20, got %v", got.ConvertedAmount)
+	if got.ConvertedAmount != "20.00" {
+		t.Fatalf("expected 20.00, got %v", got.ConvertedAmount)
 	}
 }
 
@@ -131,18 +132,18 @@ func TestExchange_success_viaUSD(t *testing.T) {
 		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
-	var got domain.CurencyExchange
+	var got dto.CurencyExchangeResponse
 	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	expectedRate := 200.0
+	expectedRate := "200.00"
 
 	if got.Rate != expectedRate {
 		t.Fatalf("expected rate %v, got %v", expectedRate, got.Rate)
 	}
 
-	if got.ConvertedAmount != 2000 {
-		t.Fatalf("expected 2000, got %v", got.ConvertedAmount)
+	if got.ConvertedAmount != "2000.00" {
+		t.Fatalf("expected 2000.00, got %v", got.ConvertedAmount)
 	}
 }

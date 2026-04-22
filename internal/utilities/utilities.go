@@ -82,7 +82,7 @@ func HandleError(w http.ResponseWriter, err error) {
 		WriteError(w, "Отстутствует обязательное поле: rate", http.StatusBadRequest)
 
 	default:
-		WriteError(w, err.Error(), http.StatusInternalServerError)
+		WriteError(w, "Internal error", http.StatusInternalServerError)
 		return
 	}
 }

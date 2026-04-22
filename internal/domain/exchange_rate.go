@@ -1,8 +1,10 @@
 package domain
 
+import "math/big"
+
 type ExchangeRate struct {
 	ID               int
 	BaseCurrencyId   int
 	TargetCurrencyId int
-	Rate             float64
+	Rate             *big.Rat
 }

@@ -4,6 +4,8 @@ import (
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
 	"currency-exchange/internal/repositories"
+	"math/big"
+	"strconv"
 )
 
 type ExchangeRateService struct {
@@ -21,15 +23,27 @@ func ExchangeRateServiceNew(
 	}
 }
 
-func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, targetCurrencyCode string, rate float64) (dto.ExchangeRateResponse, error) {
+func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, targetCurrencyCode string, rate *big.Rat) (dto.ExchangeRateResponse, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(baseCurrencyCode)
 	if err != nil {
 		return dto.ExchangeRateResponse{}, err
+	}
+	baseCurrencyResponce := dto.CurrencyResponse{
+		ID:   strconv.Itoa(baseCurrency.ID),
+		Code: baseCurrency.Code,
+		Name: baseCurrency.Name,
+		Sign: baseCurrency.Sign,
 	}
 
 	targetCurrency, err := s.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
 	if err != nil {
 		return dto.ExchangeRateResponse{}, err
+	}
+	targetCurrencyResponce := dto.CurrencyResponse{
+		ID:   strconv.Itoa(targetCurrency.ID),
+		Code: targetCurrency.Code,
+		Name: targetCurrency.Name,
+		Sign: targetCurrency.Sign,
 	}
 
 	result, err := s.exchangeRateRepository.UpdateExchangeRate(baseCurrency, targetCurrency, rate)
@@ -39,9 +53,9 @@ func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, target
 
 	return dto.ExchangeRateResponse{
 		ID:             result.ID,
-		BaseCurrency:   baseCurrency,
-		TargetCurrency: targetCurrency,
-		Rate:           result.Rate,
+		BaseCurrency:   baseCurrencyResponce,
+		TargetCurrency: targetCurrencyResponce,
+		Rate:           result.Rate.FloatString(2),
 	}, nil
 }
 
@@ -71,7 +85,7 @@ func (s *ExchangeRateService) GetExchangeRates() ([]domain.ExchangeRate, error) 
 	return s.exchangeRateRepository.GetExchangeRates()
 }
 
-func (s *ExchangeRateService) AddExchangeRates(req dto.ExchangeRate) (domain.ExchangeRate, error) {
+func (s *ExchangeRateService) AddExchangeRates(req domain.Exchange) (domain.ExchangeRate, error) {
 	baseCurrency, err := s.currencyRepository.GetCurrencyByCode(req.BaseCurrencyCode)
 	if err != nil {
 		return domain.ExchangeRate{}, err
@@ -90,17 +104,29 @@ func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) 
 	if err != nil {
 		return dto.ExchangeRateResponse{}, err
 	}
+	baseCurrencyResponce := dto.CurrencyResponse{
+		ID:   strconv.Itoa(baseCurrency.ID),
+		Code: baseCurrency.Code,
+		Name: baseCurrency.Name,
+		Sign: baseCurrency.Sign,
+	}
 
 	targetCurrency, err := s.currencyRepository.GetCurrencyById(rate.TargetCurrencyId)
 	if err != nil {
 		return dto.ExchangeRateResponse{}, err
 	}
+	targetCurrencyResponce := dto.CurrencyResponse{
+		ID:   strconv.Itoa(targetCurrency.ID),
+		Code: targetCurrency.Code,
+		Name: targetCurrency.Name,
+		Sign: targetCurrency.Sign,
+	}
 
 	return dto.ExchangeRateResponse{
 		ID:             rate.ID,
-		BaseCurrency:   baseCurrency,
-		TargetCurrency: targetCurrency,
-		Rate:           rate.Rate,
+		BaseCurrency:   baseCurrencyResponce,
+		TargetCurrency: targetCurrencyResponce,
+		Rate:           rate.Rate.FloatString(2),
 	}, err
 }
 

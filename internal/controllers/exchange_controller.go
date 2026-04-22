@@ -3,8 +3,8 @@ package controllers
 import (
 	"currency-exchange/internal/services"
 	"encoding/json"
+	"math/big"
 	"net/http"
-	"strconv"
 )
 
 type ExchangeController struct {
@@ -22,13 +22,15 @@ func (e *ExchangeController) GetExchange(w http.ResponseWriter, r *http.Request)
 
 	targetCurrency := r.URL.Query().Get("to")
 
-	amount, err := strconv.ParseFloat(r.URL.Query().Get("amount"), 64)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	amountStr := r.URL.Query().Get("amount")
+	amountValue := new(big.Rat)
+	_, ok := amountValue.SetString(amountStr)
+	if !ok {
+		http.Error(w, "Ошибка в amount", http.StatusInternalServerError)
 		return
 	}
 
-	exchange, err := e.service.GetExchange(baseCurrency, targetCurrency, amount)
+	exchange, err := e.service.GetExchange(baseCurrency, targetCurrency, amountValue)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
