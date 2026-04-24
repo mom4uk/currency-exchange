@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"currency-exchange/internal/services"
+	"currency-exchange/internal/utilities"
 	"encoding/json"
 	"math/big"
 	"net/http"
@@ -32,7 +33,7 @@ func (e *ExchangeController) GetExchange(w http.ResponseWriter, r *http.Request)
 
 	exchange, err := e.service.GetExchange(baseCurrency, targetCurrency, amountValue)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
