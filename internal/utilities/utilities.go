@@ -4,6 +4,8 @@ import (
 	"currency-exchange/internal/domain"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"math/big"
 	"net/http"
 	"strings"
 )
@@ -94,4 +96,9 @@ func HandleError(w http.ResponseWriter, err error) {
 		WriteError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func FormatRat(r *big.Rat) string {
+	f, _ := r.Float64()
+	return fmt.Sprintf("%.2f", f)
 }

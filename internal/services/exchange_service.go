@@ -1,8 +1,10 @@
 package services
 
 import (
+	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
 	"currency-exchange/internal/repositories"
+	"currency-exchange/internal/utilities"
 	"math/big"
 	"strconv"
 )
@@ -32,83 +34,87 @@ func (e *ExchangeService) GetExchange(
 	if err != nil {
 		return dto.CurencyExchangeResponse{}, err
 	}
-	baseCurrencyResponce := dto.CurrencyResponse{
+
+	targetCurrency, err := e.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
+	if err != nil {
+		return dto.CurencyExchangeResponse{}, err
+	}
+
+	baseDTO := dto.CurrencyResponse{
 		ID:   strconv.Itoa(baseCurrency.ID),
 		Code: baseCurrency.Code,
 		Name: baseCurrency.Name,
 		Sign: baseCurrency.Sign,
 	}
 
-	targetCurrency, err := e.currencyRepository.GetCurrencyByCode(targetCurrencyCode)
-	if err != nil {
-		return dto.CurencyExchangeResponse{}, err
-	}
-	targetCurrencyResponce := dto.CurrencyResponse{
+	targetDTO := dto.CurrencyResponse{
 		ID:   strconv.Itoa(targetCurrency.ID),
 		Code: targetCurrency.Code,
 		Name: targetCurrency.Name,
 		Sign: targetCurrency.Sign,
 	}
 
-	rate, found, err := e.exchangeRateRepository.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
-	if err != nil {
-		return dto.CurencyExchangeResponse{}, err
-	}
-	if found {
+	// 1. direct rate
+	if rate, found, err := e.exchangeRateRepository.GetExchangeRate(baseCurrency.ID, targetCurrency.ID); err == nil && found {
+
+		converted := new(big.Rat).Mul(amount, rate.Rate)
+
 		return dto.CurencyExchangeResponse{
-			BaseCurrency:    baseCurrencyResponce,
-			TargetCurrency:  targetCurrencyResponce,
-			Rate:            rate.Rate.FloatString(2),
-			Amount:          amount.FloatString(2),
-			ConvertedAmount: new(big.Rat).Mul(amount, rate.Rate).FloatString(2),
+			BaseCurrency:    baseDTO,
+			TargetCurrency:  targetDTO,
+			Rate:            utilities.FormatRat(rate.Rate),
+			Amount:          utilities.FormatRat(amount),
+			ConvertedAmount: utilities.FormatRat(converted),
 		}, nil
 	}
 
-	rate, found, err = e.exchangeRateRepository.GetExchangeRate(targetCurrency.ID, baseCurrency.ID)
-	if err != nil {
-		return dto.CurencyExchangeResponse{}, err
-	}
-	if found {
+	// 2. inverse rate
+	if rate, found, err := e.exchangeRateRepository.GetExchangeRate(targetCurrency.ID, baseCurrency.ID); err == nil && found {
+
 		one := big.NewRat(1, 1)
+		inverted := new(big.Rat).Quo(one, rate.Rate)
 
-		invertedRate := new(big.Rat).Quo(one, rate.Rate)
+		converted := new(big.Rat).Mul(amount, inverted)
 
 		return dto.CurencyExchangeResponse{
-			BaseCurrency:    baseCurrencyResponce,
-			TargetCurrency:  targetCurrencyResponce,
-			Rate:            invertedRate.FloatString(2),
-			Amount:          amount.FloatString(2),
-			ConvertedAmount: new(big.Rat).Mul(amount, invertedRate).FloatString(2),
+			BaseCurrency:    baseDTO,
+			TargetCurrency:  targetDTO,
+			Rate:            utilities.FormatRat(inverted),
+			Amount:          utilities.FormatRat(amount),
+			ConvertedAmount: utilities.FormatRat(converted),
 		}, nil
 	}
 
-	usdCurrency, err := e.currencyRepository.GetCurrencyByCode("USD")
+	// 3. cross via USD
+	usd, err := e.currencyRepository.GetCurrencyByCode("USD")
 	if err != nil {
 		return dto.CurencyExchangeResponse{}, err
 	}
 
-	baseToUsd, baseFound, err := e.exchangeRateRepository.GetExchangeRate(usdCurrency.ID, baseCurrency.ID)
+	baseToUSD, baseFound, err := e.exchangeRateRepository.GetExchangeRate(usd.ID, baseCurrency.ID)
 	if err != nil {
 		return dto.CurencyExchangeResponse{}, err
 	}
 
-	targetToUsd, targetFound, err := e.exchangeRateRepository.GetExchangeRate(usdCurrency.ID, targetCurrency.ID)
+	targetToUSD, targetFound, err := e.exchangeRateRepository.GetExchangeRate(usd.ID, targetCurrency.ID)
 	if err != nil {
 		return dto.CurencyExchangeResponse{}, err
 	}
 
 	if baseFound && targetFound {
-		crossRate := new(big.Rat).Quo(targetToUsd.Rate, baseToUsd.Rate)
+
+		crossRate := new(big.Rat).Quo(targetToUSD.Rate, baseToUSD.Rate)
 		converted := new(big.Rat).Mul(amount, crossRate)
 
 		return dto.CurencyExchangeResponse{
-			BaseCurrency:    baseCurrencyResponce,
-			TargetCurrency:  targetCurrencyResponce,
-			Rate:            crossRate.FloatString(2),
-			Amount:          amount.FloatString(2),
-			ConvertedAmount: converted.FloatString(2),
+			BaseCurrency:    baseDTO,
+			TargetCurrency:  targetDTO,
+			Rate:            utilities.FormatRat(crossRate),
+			Amount:          utilities.FormatRat(amount),
+			ConvertedAmount: utilities.FormatRat(converted),
 		}, nil
 	}
 
-	return dto.CurencyExchangeResponse{}, err
+	// 4. not found
+	return dto.CurencyExchangeResponse{}, domain.ErrExchangeRateNotFound
 }
