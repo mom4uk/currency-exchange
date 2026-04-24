@@ -131,7 +131,7 @@ func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) 
 }
 
 func (s *ExchangeRateService) GetExchangeRatesResponse(rates []domain.ExchangeRate) ([]dto.ExchangeRateResponse, error) {
-	var result []dto.ExchangeRateResponse
+	result := []dto.ExchangeRateResponse{}
 
 	for _, rate := range rates {
 		response, err := s.GetExchangeRateResponse(rate)

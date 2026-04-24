@@ -2,6 +2,7 @@ package dto
 
 import (
 	"currency-exchange/internal/domain"
+	"strings"
 )
 
 type AddExchangeRateRequest struct {
@@ -22,9 +23,14 @@ type UpdateExchangeRateRequest struct {
 }
 
 func ValidateExchangeRateFields(req AddExchangeRateRequest) error {
-	if req.BaseCurrencyCode == "" || req.TargetCurrencyCode == "" || req.Rate == "" {
+	base := strings.TrimSpace(req.BaseCurrencyCode)
+	target := strings.TrimSpace(req.TargetCurrencyCode)
+	rate := strings.TrimSpace(req.Rate)
+
+	if base == "" || target == "" || rate == "" {
 		return domain.ErrAbsenceOfExchangeRateField
 	}
+
 	return nil
 }
 

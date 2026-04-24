@@ -2,12 +2,14 @@ package db
 
 import (
 	"database/sql"
+	"os"
 
 	_ "modernc.org/sqlite"
 )
 
 func InitDb() *sql.DB {
-	db, err := sql.Open("sqlite", "file:app.db?_foreign_keys=on")
+	dsn := os.Getenv("DB_PATH")
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		panic(err)
 	}
