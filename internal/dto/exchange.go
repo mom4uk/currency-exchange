@@ -2,6 +2,7 @@ package dto
 
 import (
 	"currency-exchange/internal/domain"
+	"strconv"
 	"strings"
 )
 
@@ -28,6 +29,10 @@ func ValidateExchangeFields(from, to, amount string) error {
 
 	if amount == "" {
 		return domain.ErrMissingAmount
+	}
+
+	if _, err := strconv.ParseFloat(amount, 64); err != nil {
+		return domain.ErrAmountFormatIncorrect
 	}
 
 	return nil

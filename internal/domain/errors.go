@@ -21,4 +21,5 @@ var (
 	ErrMissingFromCurrency                 = errors.New("missing from field")
 	ErrMissingToCurrency                   = errors.New("missing to field")
 	ErrMissingAmount                       = errors.New("missing amount field")
+	ErrAmountFormatIncorrect               = errors.New("amount format incorrect")
 )

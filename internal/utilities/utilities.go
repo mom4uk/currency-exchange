@@ -87,6 +87,9 @@ func HandleError(w http.ResponseWriter, err error) {
 	case errors.Is(err, domain.ErrInvalidCurrencySign):
 		WriteError(w, "Значение в поле sign не должно быть длинее 3 символов", http.StatusBadRequest)
 
+	case errors.Is(err, domain.ErrAmountFormatIncorrect):
+		WriteError(w, "Некорректное значение amount", http.StatusBadRequest)
+
 	default:
 		WriteError(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -35,7 +35,8 @@ func ValidateExchangeRateFields(req AddExchangeRateRequest) error {
 }
 
 func ValidateExchangeRateFieldsForUpdate(req UpdateExchangeRateRequest) error {
-	if req.Rate == "" {
+	rate := strings.TrimSpace(req.Rate)
+	if rate == "" {
 		return domain.ErrAbsenceOfExchangeRateFieldForUpdate
 	}
 	return nil
