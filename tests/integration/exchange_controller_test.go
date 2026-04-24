@@ -2,7 +2,6 @@ package integration
 
 import (
 	"currency-exchange/db/seeds"
-	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
 	"currency-exchange/internal/test_utilities"
 	"encoding/json"
@@ -36,7 +35,7 @@ func TestExchange_success_directRate(t *testing.T) {
 		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
 	}
 
-	var got domain.CurencyExchange
+	var got dto.CurencyExchangeResponse
 	if err := json.NewDecoder(rr.Body).Decode(&got); err != nil {
 		t.Fatalf("decode error: %v", err)
 	}

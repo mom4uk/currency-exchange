@@ -6,6 +6,7 @@ import (
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"net/http"
 )
@@ -59,13 +60,17 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 		return
 	}
 
-	rateStr := r.URL.Query().Get("rate")
+	rateStr := r.FormValue("rate")
 
 	rate := new(big.Rat)
 
 	_, ok := rate.SetString(rateStr)
 	if !ok {
-		utilities.WriteError(w, "Неверная сумма", http.StatusBadRequest)
+		utilities.WriteError(
+			w,
+			fmt.Sprintf("Неверный формат суммы: %s", rateStr),
+			http.StatusBadRequest,
+		)
 		return
 	}
 
