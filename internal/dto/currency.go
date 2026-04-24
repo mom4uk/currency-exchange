@@ -3,6 +3,7 @@ package dto
 import (
 	"currency-exchange/internal/domain"
 	"regexp"
+	"strings"
 )
 
 type CurrencyResponse struct {
@@ -18,10 +19,12 @@ type CurrencyRequest struct {
 	Sign string `json:"sign"`
 }
 
-var latinOnly = regexp.MustCompile(`^[A-Za-z]+$`)
+var codeOnly = regexp.MustCompile(`^[A-Za-z]+$`)
 
 func ValidateCurrencyFields(req CurrencyRequest) error {
-	if req.Code == "" || req.Name == "" || req.Sign == "" {
+	if strings.TrimSpace(req.Code) == "" ||
+		strings.TrimSpace(req.Name) == "" ||
+		strings.TrimSpace(req.Sign) == "" {
 		return domain.ErrAbsenceOfCurrencyField
 	}
 
@@ -29,9 +32,8 @@ func ValidateCurrencyFields(req CurrencyRequest) error {
 		return domain.ErrInvalidCurrencySign
 	}
 
-	if !latinOnly.MatchString(req.Code) ||
-		!latinOnly.MatchString(req.Name) ||
-		!latinOnly.MatchString(req.Sign) {
+	// только code должен быть латиницей
+	if !codeOnly.MatchString(req.Code) {
 		return domain.ErrInvalidCurrencyField
 	}
 
