@@ -19,7 +19,7 @@ func ExchangeRateRepositoryNew(db *sql.DB) *ExchangeRateRepository {
 func (r *ExchangeRateRepository) AddExchangeRates(baseCurrency domain.Currency, targetCurrency domain.Currency, rate *big.Rat) (domain.ExchangeRate, error) {
 	query := `INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)`
 
-	res, err := r.db.Exec(query, baseCurrency.ID, targetCurrency.ID, rate.FloatString(6))
+	res, err := r.db.Exec(query, baseCurrency.ID, targetCurrency.ID, rate.FloatString(4))
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return domain.ExchangeRate{}, domain.ErrExchangeRateAlreadyExists
@@ -119,7 +119,7 @@ func (r *ExchangeRateRepository) UpdateExchangeRate(baseCurrency domain.Currency
 
 	query := `UPDATE exchange_rates SET rate = ? WHERE id = ?`
 
-	res, err := r.db.Exec(query, rate.FloatString(6), exchangeRate.ID)
+	res, err := r.db.Exec(query, rate.FloatString(4), exchangeRate.ID)
 	if err != nil {
 		return domain.ExchangeRate{}, err
 	}
