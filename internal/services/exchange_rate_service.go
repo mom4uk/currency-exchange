@@ -55,7 +55,7 @@ func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, target
 		ID:             result.ID,
 		BaseCurrency:   baseCurrencyResponce,
 		TargetCurrency: targetCurrencyResponce,
-		Rate:           result.Rate.FloatString(2),
+		Rate:           result.Rate.FloatString(6),
 	}, nil
 }
 
@@ -126,7 +126,7 @@ func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) 
 		ID:             rate.ID,
 		BaseCurrency:   baseCurrencyResponce,
 		TargetCurrency: targetCurrencyResponce,
-		Rate:           rate.Rate.FloatString(2),
+		Rate:           rate.Rate.FloatString(6),
 	}, err
 }
 
