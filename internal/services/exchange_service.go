@@ -54,7 +54,6 @@ func (e *ExchangeService) GetExchange(
 		Sign: targetCurrency.Sign,
 	}
 
-	// 1. direct rate
 	if rate, found, err := e.exchangeRateRepository.GetExchangeRate(baseCurrency.ID, targetCurrency.ID); err == nil && found {
 
 		converted := new(big.Rat).Mul(amount, rate.Rate)
@@ -68,7 +67,6 @@ func (e *ExchangeService) GetExchange(
 		}, nil
 	}
 
-	// 2. inverse rate
 	if rate, found, err := e.exchangeRateRepository.GetExchangeRate(targetCurrency.ID, baseCurrency.ID); err == nil && found {
 
 		one := big.NewRat(1, 1)
@@ -85,7 +83,6 @@ func (e *ExchangeService) GetExchange(
 		}, nil
 	}
 
-	// 3. cross via USD
 	usd, err := e.currencyRepository.GetCurrencyByCode("USD")
 	if err != nil {
 		return dto.CurencyExchangeResponse{}, err
@@ -115,6 +112,5 @@ func (e *ExchangeService) GetExchange(
 		}, nil
 	}
 
-	// 4. not found
 	return dto.CurencyExchangeResponse{}, domain.ErrExchangeRateNotFound
 }
