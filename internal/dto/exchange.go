@@ -9,9 +9,9 @@ import (
 type CurencyExchangeResponse struct {
 	BaseCurrency    CurrencyResponse `json:"baseCurrency"`
 	TargetCurrency  CurrencyResponse `json:"targetCurrency"`
-	Rate            string           `json:"rate"`
-	Amount          string           `json:"amount"`
-	ConvertedAmount string           `json:"convertedAmount"`
+	Rate            float64          `json:"rate"`
+	Amount          float64          `json:"amount"`
+	ConvertedAmount float64          `json:"convertedAmount"`
 }
 
 func ValidateExchangeFields(from, to, amount string) error {

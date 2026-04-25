@@ -61,9 +61,9 @@ func (e *ExchangeService) GetExchange(
 		return dto.CurencyExchangeResponse{
 			BaseCurrency:    baseDTO,
 			TargetCurrency:  targetDTO,
-			Rate:            utilities.FormatRat(rate.Rate),
-			Amount:          utilities.FormatRat(amount),
-			ConvertedAmount: utilities.FormatRat(converted),
+			Rate:            utilities.RatToFloat(rate.Rate),
+			Amount:          utilities.RatToFloat(amount),
+			ConvertedAmount: utilities.RatToFloat(converted),
 		}, nil
 	}
 
@@ -77,9 +77,9 @@ func (e *ExchangeService) GetExchange(
 		return dto.CurencyExchangeResponse{
 			BaseCurrency:    baseDTO,
 			TargetCurrency:  targetDTO,
-			Rate:            utilities.FormatRat(inverted),
-			Amount:          utilities.FormatRat(amount),
-			ConvertedAmount: utilities.FormatRat(converted),
+			Rate:            utilities.RatToFloat(inverted),
+			Amount:          utilities.RatToFloat(amount),
+			ConvertedAmount: utilities.RatToFloat(converted),
 		}, nil
 	}
 
@@ -106,9 +106,9 @@ func (e *ExchangeService) GetExchange(
 		return dto.CurencyExchangeResponse{
 			BaseCurrency:    baseDTO,
 			TargetCurrency:  targetDTO,
-			Rate:            utilities.FormatRat(crossRate),
-			Amount:          utilities.FormatRat(amount),
-			ConvertedAmount: utilities.FormatRat(converted),
+			Rate:            utilities.RatToFloat(crossRate),
+			Amount:          utilities.RatToFloat(amount),
+			ConvertedAmount: utilities.RatToFloat(converted),
 		}, nil
 	}
 

@@ -55,7 +55,7 @@ func TestGetExchangeRates_success(t *testing.T) {
 				Name: "Euro",
 				Sign: "€",
 			},
-			Rate: "0.99",
+			Rate: "0.9900",
 		},
 	}
 
@@ -104,7 +104,7 @@ func TestGetExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.99",
+		Rate: "0.9900",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -180,7 +180,7 @@ func TestAddExchangeRate_success(t *testing.T) {
 	form := url.Values{}
 	form.Add("baseCurrencyCode", "USD")
 	form.Add("targetCurrencyCode", "EUR")
-	form.Add("rate", "0.99")
+	form.Add("rate", "0.9900")
 
 	req := httptest.NewRequest(
 		http.MethodPost,
@@ -216,7 +216,7 @@ func TestAddExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.99",
+		Rate: "0.9900",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -236,7 +236,7 @@ func TestPostExchangeRate_error_currencyNotFound(t *testing.T) {
 
 	form.Add("baseCurrencyCode", "USD")
 	form.Add("targetCurrencyCode", "RUB")
-	form.Add("rate", "0.99")
+	form.Add("rate", "0.9900")
 
 	req := httptest.NewRequest(
 		http.MethodPost,
@@ -322,7 +322,7 @@ func TestPostExchangeRate_error_exchangeRateAlreadyExists(t *testing.T) {
 	form := url.Values{}
 	form.Add("baseCurrencyCode", "USD")
 	form.Add("targetCurrencyCode", "EUR")
-	form.Add("rate", "0.99")
+	form.Add("rate", "0.9900")
 
 	req := httptest.NewRequest(
 		http.MethodPost,
@@ -403,7 +403,7 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.98",
+		Rate: "0.9800",
 	}
 
 	if !reflect.DeepEqual(got, expected) {

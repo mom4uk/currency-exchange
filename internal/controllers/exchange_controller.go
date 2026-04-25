@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"currency-exchange/internal/dto"
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
 	"encoding/json"
@@ -19,11 +20,16 @@ func NewExchangeController(srv *services.ExchangeService) *ExchangeController {
 }
 
 func (e *ExchangeController) GetExchange(w http.ResponseWriter, r *http.Request) {
-	baseCurrency := r.URL.Query().Get("from")
+	baseCurrencyCode := r.URL.Query().Get("from")
 
-	targetCurrency := r.URL.Query().Get("to")
+	targetCurrencyCode := r.URL.Query().Get("to")
 
 	amountStr := r.URL.Query().Get("amount")
+	if err := dto.ValidateExchangeFields(baseCurrencyCode, targetCurrencyCode, amountStr); err != nil {
+		utilities.HandleError(w, err)
+		return
+	}
+
 	amountValue := new(big.Rat)
 	_, ok := amountValue.SetString(amountStr)
 	if !ok {
@@ -31,7 +37,7 @@ func (e *ExchangeController) GetExchange(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	exchange, err := e.service.GetExchange(baseCurrency, targetCurrency, amountValue)
+	exchange, err := e.service.GetExchange(baseCurrencyCode, targetCurrencyCode, amountValue)
 	if err != nil {
 		utilities.HandleError(w, err)
 		return
