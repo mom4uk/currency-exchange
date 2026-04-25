@@ -55,12 +55,49 @@ func TestGetExchangeRates_success(t *testing.T) {
 				Name: "Euro",
 				Sign: "€",
 			},
-			Rate: "0.9900",
+			Rate: 0.9900,
 		},
 	}
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Fatalf("got: %+v\nexpected: %+v", got, expected)
+	}
+}
+
+func TestGetExchangeRates_responseNumericFields(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
+		t.Fatalf("failed to seed exchange rates: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/exchangeRates", nil)
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var raw []map[string]any
+	if err := json.NewDecoder(rr.Body).Decode(&raw); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+
+	for i, item := range raw {
+		rate, ok := item["rate"]
+		if !ok {
+			t.Fatalf("item %d: rate missing", i)
+		}
+
+		if _, ok := rate.(float64); !ok {
+			t.Fatalf("item %d: rate expected number, got %T (%v)", i, rate, rate)
+		}
 	}
 }
 
@@ -104,7 +141,7 @@ func TestGetExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.9900",
+		Rate: 0.9900,
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -216,7 +253,7 @@ func TestAddExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.9900",
+		Rate: 0.9900,
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -403,7 +440,7 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.9800",
+		Rate: 0.9800,
 	}
 
 	if !reflect.DeepEqual(got, expected) {
