@@ -6,7 +6,6 @@ import (
 	"currency-exchange/internal/repositories"
 	"currency-exchange/internal/utilities"
 	"math/big"
-	"strconv"
 )
 
 type ExchangeService struct {
@@ -41,14 +40,14 @@ func (e *ExchangeService) GetExchange(
 	}
 
 	baseDTO := dto.CurrencyResponse{
-		ID:   strconv.Itoa(baseCurrency.ID),
+		ID:   baseCurrency.ID,
 		Code: baseCurrency.Code,
 		Name: baseCurrency.Name,
 		Sign: baseCurrency.Sign,
 	}
 
 	targetDTO := dto.CurrencyResponse{
-		ID:   strconv.Itoa(targetCurrency.ID),
+		ID:   targetCurrency.ID,
 		Code: targetCurrency.Code,
 		Name: targetCurrency.Name,
 		Sign: targetCurrency.Sign,

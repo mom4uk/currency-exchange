@@ -43,13 +43,13 @@ func TestExchange_success_directRate(t *testing.T) {
 
 	expected := dto.CurencyExchangeResponse{
 		BaseCurrency: dto.CurrencyResponse{
-			ID:   "1",
+			ID:   1,
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
 		TargetCurrency: dto.CurrencyResponse{
-			ID:   "2",
+			ID:   2,
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",

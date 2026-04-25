@@ -6,7 +6,6 @@ import (
 	"currency-exchange/internal/repositories"
 	"currency-exchange/internal/utilities"
 	"math/big"
-	"strconv"
 )
 
 type ExchangeRateService struct {
@@ -30,7 +29,7 @@ func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, target
 		return dto.ExchangeRateResponse{}, err
 	}
 	baseCurrencyResponce := dto.CurrencyResponse{
-		ID:   strconv.Itoa(baseCurrency.ID),
+		ID:   baseCurrency.ID,
 		Code: baseCurrency.Code,
 		Name: baseCurrency.Name,
 		Sign: baseCurrency.Sign,
@@ -41,7 +40,7 @@ func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, target
 		return dto.ExchangeRateResponse{}, err
 	}
 	targetCurrencyResponce := dto.CurrencyResponse{
-		ID:   strconv.Itoa(targetCurrency.ID),
+		ID:   targetCurrency.ID,
 		Code: targetCurrency.Code,
 		Name: targetCurrency.Name,
 		Sign: targetCurrency.Sign,
@@ -106,7 +105,7 @@ func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) 
 		return dto.ExchangeRateResponse{}, err
 	}
 	baseCurrencyResponce := dto.CurrencyResponse{
-		ID:   strconv.Itoa(baseCurrency.ID),
+		ID:   baseCurrency.ID,
 		Code: baseCurrency.Code,
 		Name: baseCurrency.Name,
 		Sign: baseCurrency.Sign,
@@ -117,7 +116,7 @@ func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) 
 		return dto.ExchangeRateResponse{}, err
 	}
 	targetCurrencyResponce := dto.CurrencyResponse{
-		ID:   strconv.Itoa(targetCurrency.ID),
+		ID:   targetCurrency.ID,
 		Code: targetCurrency.Code,
 		Name: targetCurrency.Name,
 		Sign: targetCurrency.Sign,

@@ -44,13 +44,13 @@ func TestGetExchangeRates_success(t *testing.T) {
 		{
 			ID: 1,
 			BaseCurrency: dto.CurrencyResponse{
-				ID:   "1",
+				ID:   1,
 				Code: "USD",
 				Name: "United States dollar",
 				Sign: "$",
 			},
 			TargetCurrency: dto.CurrencyResponse{
-				ID:   "2",
+				ID:   2,
 				Code: "EUR",
 				Name: "Euro",
 				Sign: "€",
@@ -61,6 +61,62 @@ func TestGetExchangeRates_success(t *testing.T) {
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Fatalf("got: %+v\nexpected: %+v", got, expected)
+	}
+}
+
+func TestExchangeRates_responseCurrencyTypes(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/exchangeRates", nil)
+	rr := httptest.NewRecorder()
+
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var raw []map[string]any
+	if err := json.NewDecoder(rr.Body).Decode(&raw); err != nil {
+		t.Fatalf("decode error: %v", err)
+	}
+
+	for i, item := range raw {
+		base, ok := item["baseCurrency"].(map[string]any)
+		if !ok {
+			t.Fatalf("item %d: baseCurrency invalid type", i)
+		}
+
+		target, ok := item["targetCurrency"].(map[string]any)
+		if !ok {
+			t.Fatalf("item %d: targetCurrency invalid type", i)
+		}
+
+		// id должен быть number
+		if _, ok := base["id"].(float64); !ok {
+			t.Fatalf("item %d: baseCurrency.id expected number, got %T (%v)", i, base["id"], base["id"])
+		}
+
+		if _, ok := target["id"].(float64); !ok {
+			t.Fatalf("item %d: targetCurrency.id expected number, got %T (%v)", i, target["id"], target["id"])
+		}
+
+		// остальное — string
+		if _, ok := base["code"].(string); !ok {
+			t.Fatalf("item %d: baseCurrency.code expected string", i)
+		}
+
+		if _, ok := target["code"].(string); !ok {
+			t.Fatalf("item %d: targetCurrency.code expected string", i)
+		}
 	}
 }
 
@@ -130,13 +186,13 @@ func TestGetExchangeRate_success(t *testing.T) {
 	expected := dto.ExchangeRateResponse{
 		ID: 1,
 		BaseCurrency: dto.CurrencyResponse{
-			ID:   "1",
+			ID:   1,
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
 		TargetCurrency: dto.CurrencyResponse{
-			ID:   "2",
+			ID:   2,
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",
@@ -242,13 +298,13 @@ func TestAddExchangeRate_success(t *testing.T) {
 	expected := dto.ExchangeRateResponse{
 		ID: 1,
 		BaseCurrency: dto.CurrencyResponse{
-			ID:   "1",
+			ID:   1,
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
 		TargetCurrency: dto.CurrencyResponse{
-			ID:   "2",
+			ID:   2,
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",
@@ -429,13 +485,13 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 	expected := dto.ExchangeRateResponse{
 		ID: 1,
 		BaseCurrency: dto.CurrencyResponse{
-			ID:   "1",
+			ID:   1,
 			Code: "USD",
 			Name: "United States dollar",
 			Sign: "$",
 		},
 		TargetCurrency: dto.CurrencyResponse{
-			ID:   "2",
+			ID:   2,
 			Code: "EUR",
 			Name: "Euro",
 			Sign: "€",
@@ -445,6 +501,64 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Fatalf("got: %+v\nexpected: %+v", got, expected)
+	}
+}
+
+func TestUpdateExchangeRate_responseStructure(t *testing.T) {
+	app := test_utilities.NewTestApp(t)
+
+	if err := seeds.SeedCurrencies(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
+		t.Fatalf("seed failed: %v", err)
+	}
+
+	form := url.Values{}
+	form.Add("rate", "2.3993")
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		"/exchangeRate/USDEUR",
+		strings.NewReader(form.Encode()),
+	)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rr := httptest.NewRecorder()
+	app.Server.GetMux().ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
+	}
+
+	var raw map[string]any
+	if err := json.NewDecoder(rr.Body).Decode(&raw); err != nil {
+		t.Fatalf("decode error: %v", err)
+	}
+
+	base, ok := raw["baseCurrency"].(map[string]any)
+	if !ok {
+		t.Fatalf("baseCurrency invalid type")
+	}
+
+	target, ok := raw["targetCurrency"].(map[string]any)
+	if !ok {
+		t.Fatalf("targetCurrency invalid type")
+	}
+
+	// ID должен быть number
+	if _, ok := base["id"].(float64); !ok {
+		t.Fatalf("baseCurrency.id expected number, got %T", base["id"])
+	}
+
+	if _, ok := target["id"].(float64); !ok {
+		t.Fatalf("targetCurrency.id expected number, got %T", target["id"])
+	}
+
+	// rate должен быть number
+	if _, ok := raw["rate"].(float64); !ok {
+		t.Fatalf("rate expected number, got %T (%v)", raw["rate"], raw["rate"])
 	}
 }
 
