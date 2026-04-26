@@ -117,11 +117,11 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 
 func (r *ExchangeRateRepository) UpdateExchangeRate(baseCurrency domain.Currency, targetCurrency domain.Currency, rate *big.Rat) (domain.ExchangeRate, error) {
 	exchangeRate, found, err := r.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
-	if !found {
-		return domain.ExchangeRate{}, domain.ErrExchangeRateNotFound
-	}
 	if err != nil {
 		return domain.ExchangeRate{}, err
+	}
+	if !found {
+		return domain.ExchangeRate{}, domain.ErrExchangeRateNotFound
 	}
 
 	query := `UPDATE exchange_rates SET rate = ? WHERE id = ?`

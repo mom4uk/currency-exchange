@@ -22,4 +22,6 @@ var (
 	ErrMissingToCurrency                   = errors.New("missing to field")
 	ErrMissingAmount                       = errors.New("missing amount field")
 	ErrAmountFormatIncorrect               = errors.New("amount format incorrect")
+	ErrAmountConvertation                  = errors.New("amount convertation error")
+	ErrRateConvertaion                     = errors.New("rate convertation error")
 )

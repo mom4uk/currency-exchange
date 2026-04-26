@@ -112,6 +112,14 @@ func HandleError(w http.ResponseWriter, err error) {
 		WriteError(w, "Значение amount не передано", http.StatusBadRequest)
 		return
 
+	case errors.Is(err, domain.ErrAmountConvertation):
+		WriteError(w, "Ошибка в конвертации amount", http.StatusBadRequest)
+		return
+
+	case errors.Is(err, domain.ErrRateConvertaion):
+		WriteError(w, "Ошибка в конвертации rate", http.StatusBadRequest)
+		return
+
 	default:
 		WriteError(w, err.Error(), http.StatusInternalServerError)
 		return

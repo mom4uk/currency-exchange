@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
@@ -33,7 +34,7 @@ func (e *ExchangeController) GetExchange(w http.ResponseWriter, r *http.Request)
 	amountValue := new(big.Rat)
 	_, ok := amountValue.SetString(amountStr)
 	if !ok {
-		http.Error(w, "Ошибка в amount", http.StatusInternalServerError)
+		utilities.HandleError(w, domain.ErrAmountConvertation)
 		return
 	}
 

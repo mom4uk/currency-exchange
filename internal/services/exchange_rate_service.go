@@ -71,11 +71,11 @@ func (s *ExchangeRateService) GetExchangeRateByCodes(baseCurrencyCode string, ta
 	}
 
 	rate, found, err := s.exchangeRateRepository.GetExchangeRate(baseCurrency.ID, targetCurrency.ID)
-	if !found {
-		return domain.ExchangeRate{}, domain.ErrExchangeRateNotFound
-	}
 	if err != nil {
 		return domain.ExchangeRate{}, err
+	}
+	if !found {
+		return domain.ExchangeRate{}, domain.ErrExchangeRateNotFound
 	}
 
 	return rate, nil

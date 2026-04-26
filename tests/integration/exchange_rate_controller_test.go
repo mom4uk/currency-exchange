@@ -64,7 +64,7 @@ func TestGetExchangeRates_success(t *testing.T) {
 	}
 }
 
-func TestExchangeRates_responseCurrencyTypes(t *testing.T) {
+func TestExchangeRates_success_responseCurrencyTypes(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
 	if err := seeds.SeedCurrencies(app.DB); err != nil {
@@ -100,7 +100,6 @@ func TestExchangeRates_responseCurrencyTypes(t *testing.T) {
 			t.Fatalf("item %d: targetCurrency invalid type", i)
 		}
 
-		// id должен быть number
 		if _, ok := base["id"].(float64); !ok {
 			t.Fatalf("item %d: baseCurrency.id expected number, got %T (%v)", i, base["id"], base["id"])
 		}
@@ -109,7 +108,6 @@ func TestExchangeRates_responseCurrencyTypes(t *testing.T) {
 			t.Fatalf("item %d: targetCurrency.id expected number, got %T (%v)", i, target["id"], target["id"])
 		}
 
-		// остальное — string
 		if _, ok := base["code"].(string); !ok {
 			t.Fatalf("item %d: baseCurrency.code expected string", i)
 		}
@@ -120,7 +118,7 @@ func TestExchangeRates_responseCurrencyTypes(t *testing.T) {
 	}
 }
 
-func TestGetExchangeRates_responseNumericFields(t *testing.T) {
+func TestGetExchangeRates_success_responseNumericFields(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
 	if err := seeds.SeedCurrencies(app.DB); err != nil {
@@ -504,7 +502,7 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 	}
 }
 
-func TestUpdateExchangeRate_responseStructure(t *testing.T) {
+func TestUpdateExchangeRate_success_responseStructure(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
 
 	if err := seeds.SeedCurrencies(app.DB); err != nil {
@@ -547,7 +545,6 @@ func TestUpdateExchangeRate_responseStructure(t *testing.T) {
 		t.Fatalf("targetCurrency invalid type")
 	}
 
-	// ID должен быть number
 	if _, ok := base["id"].(float64); !ok {
 		t.Fatalf("baseCurrency.id expected number, got %T", base["id"])
 	}
@@ -556,7 +553,6 @@ func TestUpdateExchangeRate_responseStructure(t *testing.T) {
 		t.Fatalf("targetCurrency.id expected number, got %T", target["id"])
 	}
 
-	// rate должен быть number
 	if _, ok := raw["rate"].(float64); !ok {
 		t.Fatalf("rate expected number, got %T (%v)", raw["rate"], raw["rate"])
 	}

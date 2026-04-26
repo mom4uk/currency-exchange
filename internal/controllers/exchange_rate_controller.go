@@ -168,7 +168,7 @@ func (e *ExchangeRateController) updateExchangeRate(w http.ResponseWriter, r *ht
 	rateValue := new(big.Rat)
 	_, ok := rateValue.SetString(rateStr)
 	if !ok {
-		http.Error(w, "Ошибка в rate", http.StatusInternalServerError)
+		utilities.HandleError(w, domain.ErrRateConvertaion)
 		return
 	}
 

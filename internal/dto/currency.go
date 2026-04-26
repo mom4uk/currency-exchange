@@ -32,7 +32,6 @@ func ValidateCurrencyFields(req CurrencyRequest) error {
 		return domain.ErrInvalidCurrencySign
 	}
 
-	// только code должен быть латиницей
 	if !codeOnly.MatchString(req.Code) {
 		return domain.ErrInvalidCurrencyField
 	}
