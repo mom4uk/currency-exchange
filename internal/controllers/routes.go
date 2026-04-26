@@ -24,11 +24,11 @@ func RegisterCurrencyRoutes(mux *http.ServeMux, c *CurrencyController) {
 func RegisterExchangeRateRoutes(mux *http.ServeMux, c *ExchangeRateController) {
 	mux.Handle(
 		"GET /exchangeRates",
-		utilities.JSON(http.HandlerFunc(c.AddExchangeRates)),
+		utilities.JSON(http.HandlerFunc(c.GetExchangeRates)),
 	)
 	mux.Handle(
 		"POST /exchangeRates",
-		utilities.JSON(http.HandlerFunc(c.GetExchangeRates)),
+		utilities.JSON(http.HandlerFunc(c.AddExchangeRates)),
 	)
 
 	mux.Handle(

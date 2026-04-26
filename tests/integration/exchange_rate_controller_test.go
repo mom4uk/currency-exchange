@@ -55,7 +55,7 @@ func TestGetExchangeRates_success(t *testing.T) {
 				Name: "Euro",
 				Sign: "€",
 			},
-			Rate: 0.9900,
+			Rate: "0.99",
 		},
 	}
 
@@ -118,43 +118,6 @@ func TestExchangeRates_success_responseCurrencyTypes(t *testing.T) {
 	}
 }
 
-func TestGetExchangeRates_success_responseNumericFields(t *testing.T) {
-	app := test_utilities.NewTestApp(t)
-
-	if err := seeds.SeedCurrencies(app.DB); err != nil {
-		t.Fatalf("seed failed: %v", err)
-	}
-
-	if err := seeds.SeedExchangeUsdToEur(app.DB); err != nil {
-		t.Fatalf("failed to seed exchange rates: %v", err)
-	}
-
-	req := httptest.NewRequest(http.MethodGet, "/exchangeRates", nil)
-	rr := httptest.NewRecorder()
-
-	app.Server.GetMux().ServeHTTP(rr, req)
-
-	if rr.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d\nbody: %s", rr.Code, rr.Body.String())
-	}
-
-	var raw []map[string]any
-	if err := json.NewDecoder(rr.Body).Decode(&raw); err != nil {
-		t.Fatalf("failed to decode response: %v", err)
-	}
-
-	for i, item := range raw {
-		rate, ok := item["rate"]
-		if !ok {
-			t.Fatalf("item %d: rate missing", i)
-		}
-
-		if _, ok := rate.(float64); !ok {
-			t.Fatalf("item %d: rate expected number, got %T (%v)", i, rate, rate)
-		}
-	}
-}
-
 // Success for GET /exchangeRate/{code}
 func TestGetExchangeRate_success(t *testing.T) {
 	app := test_utilities.NewTestApp(t)
@@ -195,7 +158,7 @@ func TestGetExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: 0.9900,
+		Rate: "0.99",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -307,7 +270,7 @@ func TestAddExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: 0.9900,
+		Rate: "0.99",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -494,7 +457,7 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: 0.9800,
+		Rate: "0.98",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -551,10 +514,6 @@ func TestUpdateExchangeRate_success_responseStructure(t *testing.T) {
 
 	if _, ok := target["id"].(float64); !ok {
 		t.Fatalf("targetCurrency.id expected number, got %T", target["id"])
-	}
-
-	if _, ok := raw["rate"].(float64); !ok {
-		t.Fatalf("rate expected number, got %T (%v)", raw["rate"], raw["rate"])
 	}
 }
 
