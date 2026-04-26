@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"os"
 )
@@ -20,5 +21,9 @@ func (s *Server) GetMux() *http.ServeMux {
 }
 
 func (s *Server) Start() error {
-	return http.ListenAndServe(os.Getenv("ADDR"), s.mux)
+	err := http.ListenAndServe(os.Getenv("ADDR"), s.mux)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return err
 }
