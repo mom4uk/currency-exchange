@@ -19,18 +19,7 @@ func NewController(service *services.CurrencyService) *CurrencyController {
 	}
 }
 
-func (c *CurrencyController) HandleCurrencies(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		c.getCurrencies(w)
-	case "POST":
-		c.addCurrency(w, r)
-	default:
-		utilities.WriteError(w, "This method is not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (c *CurrencyController) getCurrencies(w http.ResponseWriter) {
+func (c *CurrencyController) GetCurrencies(w http.ResponseWriter, r *http.Request) {
 	currencies, err := c.service.GetCurrencies()
 
 	if err != nil {
@@ -44,7 +33,7 @@ func (c *CurrencyController) getCurrencies(w http.ResponseWriter) {
 	}
 }
 
-func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request) {
+func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		utilities.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return

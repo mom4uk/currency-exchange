@@ -20,29 +20,7 @@ func NewExchangeRateController(service *services.ExchangeRateService) *ExchangeR
 	}
 }
 
-func (e *ExchangeRateController) HandleExchangeRates(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		e.getExchangeRates(w)
-	case "POST":
-		e.addExchangeRates(w, r)
-	default:
-		utilities.WriteError(w, "This method is not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (e *ExchangeRateController) HandleExchangeRate(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		e.getExchangeRate(w, r)
-	case "PATCH":
-		e.updateExchangeRate(w, r)
-	default:
-		utilities.WriteError(w, "This method is not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http.Request) {
+func (e *ExchangeRateController) AddExchangeRates(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		utilities.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
@@ -95,7 +73,7 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 	}
 }
 
-func (e *ExchangeRateController) getExchangeRates(w http.ResponseWriter) {
+func (e *ExchangeRateController) GetExchangeRates(w http.ResponseWriter, r *http.Request) {
 	rates, err := e.service.GetExchangeRates()
 	if err != nil {
 		utilities.HandleError(w, err)
@@ -114,7 +92,7 @@ func (e *ExchangeRateController) getExchangeRates(w http.ResponseWriter) {
 	}
 }
 
-func (e *ExchangeRateController) getExchangeRate(w http.ResponseWriter, r *http.Request) {
+func (e *ExchangeRateController) GetExchangeRate(w http.ResponseWriter, r *http.Request) {
 	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
 	if err != nil {
 		utilities.HandleError(w, err)
@@ -139,7 +117,7 @@ func (e *ExchangeRateController) getExchangeRate(w http.ResponseWriter, r *http.
 	}
 }
 
-func (e *ExchangeRateController) updateExchangeRate(w http.ResponseWriter, r *http.Request) {
+func (e *ExchangeRateController) UpdateExchangeRate(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		utilities.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return

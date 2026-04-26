@@ -6,15 +6,44 @@ import (
 )
 
 func RegisterCurrencyRoutes(mux *http.ServeMux, c *CurrencyController) {
-	mux.Handle("/currencies", utilities.JSON(http.HandlerFunc(c.HandleCurrencies)))
-	mux.Handle("/currency/", utilities.JSON(http.HandlerFunc(c.GetCurrency)))
+	mux.Handle(
+		"GET /currencies",
+		utilities.JSON(http.HandlerFunc(c.GetCurrencies)),
+	)
+	mux.Handle(
+		"POST /currencies",
+		utilities.JSON(http.HandlerFunc(c.AddCurrency)),
+	)
+
+	mux.Handle(
+		"GET /currency/",
+		utilities.JSON(http.HandlerFunc(c.GetCurrency)),
+	)
 }
 
 func RegisterExchangeRateRoutes(mux *http.ServeMux, c *ExchangeRateController) {
-	mux.Handle("/exchangeRates", utilities.JSON(http.HandlerFunc(c.HandleExchangeRates)))
-	mux.Handle("/exchangeRate/", utilities.JSON(http.HandlerFunc(c.HandleExchangeRate)))
+	mux.Handle(
+		"GET /exchangeRates",
+		utilities.JSON(http.HandlerFunc(c.AddExchangeRates)),
+	)
+	mux.Handle(
+		"POST /exchangeRates",
+		utilities.JSON(http.HandlerFunc(c.GetExchangeRates)),
+	)
+
+	mux.Handle(
+		"GET /exchangeRate/",
+		utilities.JSON(http.HandlerFunc(c.GetExchangeRate)),
+	)
+	mux.Handle(
+		"PATCH /exchangeRate/",
+		utilities.JSON(http.HandlerFunc(c.UpdateExchangeRate)),
+	)
 }
 
 func RegisterExchangeRoutes(mux *http.ServeMux, c *ExchangeController) {
-	mux.Handle("/exchange", utilities.JSON(http.HandlerFunc(c.GetExchange)))
+	mux.Handle(
+		"GET /exchange",
+		utilities.JSON(http.HandlerFunc(c.GetExchange)),
+	)
 }

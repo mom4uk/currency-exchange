@@ -1,6 +1,9 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+	"os"
+)
 
 type Server struct {
 	mux *http.ServeMux
@@ -17,5 +20,5 @@ func (s *Server) GetMux() *http.ServeMux {
 }
 
 func (s *Server) Start() error {
-	return http.ListenAndServe(":8080", s.mux)
+	return http.ListenAndServe(os.Getenv("ADDR"), s.mux)
 }
