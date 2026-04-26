@@ -6,7 +6,6 @@ import (
 	"currency-exchange/internal/services"
 	"currency-exchange/internal/utilities"
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"net/http"
 )
@@ -28,7 +27,7 @@ func (e *ExchangeRateController) HandleExchangeRates(w http.ResponseWriter, r *h
 	case "POST":
 		e.addExchangeRates(w, r)
 	default:
-		http.Error(w, "This method is not allowed", http.StatusMethodNotAllowed)
+		utilities.WriteError(w, "This method is not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -39,13 +38,13 @@ func (e *ExchangeRateController) HandleExchangeRate(w http.ResponseWriter, r *ht
 	case "PATCH":
 		e.updateExchangeRate(w, r)
 	default:
-		http.Error(w, "This method is not allowed", http.StatusMethodNotAllowed)
+		utilities.WriteError(w, "This method is not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
 func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utilities.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
 	}
 
@@ -66,11 +65,7 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 
 	_, ok := rate.SetString(rateStr)
 	if !ok {
-		utilities.WriteError(
-			w,
-			fmt.Sprintf("Неверный формат суммы: %s", rateStr),
-			http.StatusBadRequest,
-		)
+		utilities.HandleError(w, domain.ErrRateConvertaion)
 		return
 	}
 
@@ -95,7 +90,7 @@ func (e *ExchangeRateController) addExchangeRates(w http.ResponseWriter, r *http
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -114,7 +109,7 @@ func (e *ExchangeRateController) getExchangeRates(w http.ResponseWriter) {
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -139,14 +134,14 @@ func (e *ExchangeRateController) getExchangeRate(w http.ResponseWriter, r *http.
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (e *ExchangeRateController) updateExchangeRate(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utilities.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
 	}
 
@@ -179,7 +174,7 @@ func (e *ExchangeRateController) updateExchangeRate(w http.ResponseWriter, r *ht
 	}
 
 	if err := json.NewEncoder(w).Encode(rate); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }

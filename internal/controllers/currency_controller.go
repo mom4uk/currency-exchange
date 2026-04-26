@@ -26,7 +26,7 @@ func (c *CurrencyController) HandleCurrencies(w http.ResponseWriter, r *http.Req
 	case "POST":
 		c.addCurrency(w, r)
 	default:
-		http.Error(w, "This method is not allowed", http.StatusMethodNotAllowed)
+		utilities.WriteError(w, "This method is not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -34,19 +34,19 @@ func (c *CurrencyController) getCurrencies(w http.ResponseWriter) {
 	currencies, err := c.service.GetCurrencies()
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(currencies); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utilities.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (c *CurrencyController) addCurrency(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -101,7 +101,7 @@ func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := json.NewEncoder(w).Encode(currency); err != nil {
-		utilities.HandleError(w, err)
+		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
