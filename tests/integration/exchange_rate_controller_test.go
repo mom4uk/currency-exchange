@@ -55,7 +55,7 @@ func TestGetExchangeRates_success(t *testing.T) {
 				Name: "Euro",
 				Sign: "€",
 			},
-			Rate: "0.99",
+			Rate: 0.99,
 		},
 	}
 
@@ -158,7 +158,7 @@ func TestGetExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.99",
+		Rate: 0.99,
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -270,7 +270,7 @@ func TestAddExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.99",
+		Rate: 0.99,
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -457,7 +457,7 @@ func TestUpdateExchangeRate_success(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate: "0.98",
+		Rate: 0.98,
 	}
 
 	if !reflect.DeepEqual(got, expected) {
