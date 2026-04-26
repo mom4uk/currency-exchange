@@ -1,7 +1,6 @@
 package server
 
 import (
-	"log"
 	"net/http"
 	"os"
 )
@@ -22,10 +21,5 @@ func (s *Server) GetMux() *http.ServeMux {
 
 func (s *Server) Start() error {
 	addr := os.Getenv("ADDR")
-	log.Println("starting server on:", addr)
-	if addr == "" {
-		addr = ":8080"
-	}
-
 	return http.ListenAndServe(addr, s.mux)
 }
