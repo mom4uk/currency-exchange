@@ -54,9 +54,9 @@ func TestExchange_success_directRate(t *testing.T) {
 			Name: "Euro",
 			Sign: "€",
 		},
-		Rate:            0.99,
-		Amount:          10.00,
-		ConvertedAmount: 9.90,
+		Rate:            "0.99",
+		Amount:          "10.00",
+		ConvertedAmount: "9.90",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -93,13 +93,13 @@ func TestExchange_success_reverseRate(t *testing.T) {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	expectedRate := 2.00
+	expectedRate := "2.00"
 
 	if got.Rate != expectedRate {
 		t.Fatalf("expected rate %v, got %v", expectedRate, got.Rate)
 	}
 
-	if got.ConvertedAmount != 20.00 {
+	if got.ConvertedAmount != "20.00" {
 		t.Fatalf("expected 20.00, got %v", got.ConvertedAmount)
 	}
 }
@@ -137,13 +137,13 @@ func TestExchange_success_viaUSD(t *testing.T) {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	expectedRate := 200.00
+	expectedRate := "200.00"
 
 	if got.Rate != expectedRate {
 		t.Fatalf("expected rate %v, got %v", expectedRate, got.Rate)
 	}
 
-	if got.ConvertedAmount != 2000.00 {
+	if got.ConvertedAmount != "2000.00" {
 		t.Fatalf("expected 2000.00, got %v", got.ConvertedAmount)
 	}
 }
