@@ -17,7 +17,7 @@ func main() {
 	CurrencyRepository := repositories.CurrencyRepositoryNew(db)
 	ExchangeRateRepository := repositories.ExchangeRateRepositoryNew(db)
 
-	currencyService := services.CurrencyServiceNew(ExchangeRateRepository, CurrencyRepository)
+	currencyService := services.CurrencyServiceNew(CurrencyRepository)
 	exchangeRateService := services.ExchangeRateServiceNew(ExchangeRateRepository, CurrencyRepository)
 	exchangeService := services.ExchangeServiceNew(ExchangeRateRepository, CurrencyRepository)
 
