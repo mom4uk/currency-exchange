@@ -47,7 +47,7 @@ func NewTestApp(t *testing.T) *TestApp {
 	currencyRepo := repositories.CurrencyRepositoryNew(db)
 	exchangeRepo := repositories.ExchangeRateRepositoryNew(db)
 
-	currencyService := services.CurrencyServiceNew(exchangeRepo, currencyRepo)
+	currencyService := services.CurrencyServiceNew(currencyRepo)
 	exchangeRateService := services.ExchangeRateServiceNew(exchangeRepo, currencyRepo)
 	exchangeService := services.ExchangeServiceNew(exchangeRepo, currencyRepo)
 

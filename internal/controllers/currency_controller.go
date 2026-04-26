@@ -23,19 +23,19 @@ func (c *CurrencyController) GetCurrencies(w http.ResponseWriter, r *http.Reques
 	currencies, err := c.service.GetCurrencies()
 
 	if err != nil {
-		utilities.HandleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(currencies); err != nil {
-		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		utilities.WriteError(w, "Parse form error", http.StatusBadRequest)
+		WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
 	}
 
@@ -50,7 +50,7 @@ func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := dto.ValidateCurrencyFields(req); err != nil {
-		utilities.HandleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
@@ -63,14 +63,14 @@ func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request)
 	res, err := c.service.AddCurrency(currency)
 
 	if err != nil {
-		utilities.HandleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -78,19 +78,19 @@ func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request)
 func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request) {
 	currencyCode, err := utilities.GetLastPathSegment(r.URL.Path)
 	if err != nil {
-		utilities.HandleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
 	currency, err := c.service.GetCurrencyByCode(currencyCode)
 
 	if err != nil {
-		utilities.HandleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(currency); err != nil {
-		utilities.WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }

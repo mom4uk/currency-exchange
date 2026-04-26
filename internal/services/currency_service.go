@@ -10,7 +10,6 @@ type CurrencyService struct {
 }
 
 func CurrencyServiceNew(
-	exchangeRateRepository *repositories.ExchangeRateRepository,
 	currencyRepository *repositories.CurrencyRepository,
 ) *CurrencyService {
 	return &CurrencyService{
