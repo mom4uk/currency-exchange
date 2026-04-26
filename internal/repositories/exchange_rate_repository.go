@@ -4,6 +4,7 @@ import (
 	"currency-exchange/internal/domain"
 	"database/sql"
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
 )
@@ -44,14 +45,17 @@ func (r *ExchangeRateRepository) GetExchangeRates() ([]domain.ExchangeRate, erro
 	query := `SELECT * FROM exchange_rates`
 
 	rows, err := r.db.Query(query)
-	result := []domain.ExchangeRate{}
-
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, sql.ErrNoRows
-		}
 		return nil, err
 	}
+
+	result := []domain.ExchangeRate{}
+
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("rows close error: %v", err)
+		}
+	}()
 
 	for rows.Next() {
 		var rateStr string
@@ -75,6 +79,9 @@ func (r *ExchangeRateRepository) GetExchangeRates() ([]domain.ExchangeRate, erro
 		e.Rate = rate
 
 		result = append(result, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return result, nil
