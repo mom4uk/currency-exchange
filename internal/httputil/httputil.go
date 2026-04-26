@@ -1,17 +1,9 @@
-package utilities
+package httputil
 
 import (
 	"currency-exchange/internal/domain"
-	"net/http"
 	"strings"
 )
-
-func JSON(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		next.ServeHTTP(w, r)
-	})
-}
 
 func GetLastPathSegment(url string) (string, error) {
 	index := strings.LastIndex(url, "/")

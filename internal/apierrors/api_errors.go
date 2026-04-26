@@ -1,4 +1,4 @@
-package controllers
+package apierrors
 
 import (
 	"currency-exchange/internal/domain"

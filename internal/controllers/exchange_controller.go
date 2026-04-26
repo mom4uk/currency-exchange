@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"currency-exchange/internal/apierrors"
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
 	"currency-exchange/internal/services"
@@ -26,25 +27,25 @@ func (e *ExchangeController) GetExchange(w http.ResponseWriter, r *http.Request)
 
 	amountStr := r.URL.Query().Get("amount")
 	if err := dto.ValidateExchangeFields(baseCurrencyCode, targetCurrencyCode, amountStr); err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	amountValue := new(big.Rat)
 	_, ok := amountValue.SetString(amountStr)
 	if !ok {
-		HandleError(w, domain.ErrAmountConvertation)
+		apierrors.HandleError(w, domain.ErrAmountConvertation)
 		return
 	}
 
 	exchange, err := e.service.GetExchange(baseCurrencyCode, targetCurrencyCode, amountValue)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(exchange); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }

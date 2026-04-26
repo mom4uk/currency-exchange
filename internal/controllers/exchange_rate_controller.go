@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"currency-exchange/internal/apierrors"
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
+	"currency-exchange/internal/httputil"
 	"currency-exchange/internal/services"
-	"currency-exchange/internal/utilities"
 	"encoding/json"
 	"math/big"
 	"net/http"
@@ -22,7 +23,7 @@ func NewExchangeRateController(service *services.ExchangeRateService) *ExchangeR
 
 func (e *ExchangeRateController) AddExchangeRates(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		WriteError(w, "Parse form error", http.StatusBadRequest)
+		apierrors.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
 	}
 
@@ -33,7 +34,7 @@ func (e *ExchangeRateController) AddExchangeRates(w http.ResponseWriter, r *http
 	}
 
 	if err := dto.ValidateExchangeRateFields(req); err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
@@ -43,7 +44,7 @@ func (e *ExchangeRateController) AddExchangeRates(w http.ResponseWriter, r *http
 
 	_, ok := rate.SetString(rateStr)
 	if !ok {
-		HandleError(w, domain.ErrRateConvertaion)
+		apierrors.HandleError(w, domain.ErrRateConvertaion)
 		return
 	}
 
@@ -55,20 +56,20 @@ func (e *ExchangeRateController) AddExchangeRates(w http.ResponseWriter, r *http
 
 	result, err := e.service.AddExchangeRates(exchangeRate)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	res, err := e.service.GetExchangeRateResponse(result)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
@@ -76,56 +77,56 @@ func (e *ExchangeRateController) AddExchangeRates(w http.ResponseWriter, r *http
 func (e *ExchangeRateController) GetExchangeRates(w http.ResponseWriter, r *http.Request) {
 	rates, err := e.service.GetExchangeRates()
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	response, err := e.service.GetExchangeRatesResponse(rates)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (e *ExchangeRateController) GetExchangeRate(w http.ResponseWriter, r *http.Request) {
-	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
+	baseCurrencyCode, targetCurrencyCode, err := httputil.GetCurrencyCodes(r.URL.Path)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	rate, err := e.service.GetExchangeRateByCodes(baseCurrencyCode, targetCurrencyCode)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	response, err := e.service.GetExchangeRateResponse(rate)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (e *ExchangeRateController) UpdateExchangeRate(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		WriteError(w, "Parse form error", http.StatusBadRequest)
+		apierrors.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
 	}
 
-	baseCurrencyCode, targetCurrencyCode, err := utilities.GetCurrencyCodes(r.URL.Path)
+	baseCurrencyCode, targetCurrencyCode, err := httputil.GetCurrencyCodes(r.URL.Path)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
@@ -134,25 +135,25 @@ func (e *ExchangeRateController) UpdateExchangeRate(w http.ResponseWriter, r *ht
 	}
 
 	if err := dto.ValidateExchangeRateFieldsForUpdate(req); err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 	rateStr := r.FormValue("rate")
 	rateValue := new(big.Rat)
 	_, ok := rateValue.SetString(rateStr)
 	if !ok {
-		HandleError(w, domain.ErrRateConvertaion)
+		apierrors.HandleError(w, domain.ErrRateConvertaion)
 		return
 	}
 
 	rate, err := e.service.UpdateExchangeRate(baseCurrencyCode, targetCurrencyCode, rateValue)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(rate); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }

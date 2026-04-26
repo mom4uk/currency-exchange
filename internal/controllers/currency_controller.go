@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"currency-exchange/internal/apierrors"
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
+	"currency-exchange/internal/httputil"
 	"currency-exchange/internal/services"
-	"currency-exchange/internal/utilities"
 	"encoding/json"
 	"net/http"
 )
@@ -23,19 +24,19 @@ func (c *CurrencyController) GetCurrencies(w http.ResponseWriter, r *http.Reques
 	currencies, err := c.service.GetCurrencies()
 
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(currencies); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		WriteError(w, "Parse form error", http.StatusBadRequest)
+		apierrors.WriteError(w, "Parse form error", http.StatusBadRequest)
 		return
 	}
 
@@ -50,7 +51,7 @@ func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := dto.ValidateCurrencyFields(req); err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
@@ -63,34 +64,34 @@ func (c *CurrencyController) AddCurrency(w http.ResponseWriter, r *http.Request)
 	res, err := c.service.AddCurrency(currency)
 
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
 
 func (c *CurrencyController) GetCurrency(w http.ResponseWriter, r *http.Request) {
-	currencyCode, err := utilities.GetLastPathSegment(r.URL.Path)
+	currencyCode, err := httputil.GetLastPathSegment(r.URL.Path)
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	currency, err := c.service.GetCurrencyByCode(currencyCode)
 
 	if err != nil {
-		HandleError(w, err)
+		apierrors.HandleError(w, err)
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(currency); err != nil {
-		WriteError(w, "Json convertation error", http.StatusInternalServerError)
+		apierrors.WriteError(w, "Json convertation error", http.StatusInternalServerError)
 		return
 	}
 }
