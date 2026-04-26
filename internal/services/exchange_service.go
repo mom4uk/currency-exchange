@@ -3,6 +3,7 @@ package services
 import (
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
+	"currency-exchange/internal/utilities"
 	"math/big"
 )
 
@@ -58,9 +59,9 @@ func (e *ExchangeService) GetExchange(
 		return dto.CurencyExchangeResponse{
 			BaseCurrency:    baseDTO,
 			TargetCurrency:  targetDTO,
-			Rate:            rate.Rate.FloatString(2),
-			Amount:          amount.FloatString(2),
-			ConvertedAmount: converted.FloatString(2),
+			Rate:            utilities.RatToFloat(rate.Rate),
+			Amount:          utilities.RatToFloat(amount),
+			ConvertedAmount: utilities.RatToFloat(converted),
 		}, nil
 	}
 
@@ -74,9 +75,9 @@ func (e *ExchangeService) GetExchange(
 		return dto.CurencyExchangeResponse{
 			BaseCurrency:    baseDTO,
 			TargetCurrency:  targetDTO,
-			Rate:            inverted.FloatString(2),
-			Amount:          amount.FloatString(2),
-			ConvertedAmount: converted.FloatString(2),
+			Rate:            utilities.RatToFloat(inverted),
+			Amount:          utilities.RatToFloat(amount),
+			ConvertedAmount: utilities.RatToFloat(converted),
 		}, nil
 	}
 
@@ -103,9 +104,9 @@ func (e *ExchangeService) GetExchange(
 		return dto.CurencyExchangeResponse{
 			BaseCurrency:    baseDTO,
 			TargetCurrency:  targetDTO,
-			Rate:            crossRate.FloatString(2),
-			Amount:          amount.FloatString(2),
-			ConvertedAmount: converted.FloatString(2),
+			Rate:            utilities.RatToFloat(crossRate),
+			Amount:          utilities.RatToFloat(amount),
+			ConvertedAmount: utilities.RatToFloat(converted),
 		}, nil
 	}
 

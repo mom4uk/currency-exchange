@@ -15,7 +15,7 @@ type ExchangeRateResponse struct {
 	ID             int              `json:"id"`
 	BaseCurrency   CurrencyResponse `json:"baseCurrency"`
 	TargetCurrency CurrencyResponse `json:"targetCurrency"`
-	Rate           string           `json:"rate"`
+	Rate           float64          `json:"rate"`
 }
 
 type UpdateExchangeRateRequest struct {

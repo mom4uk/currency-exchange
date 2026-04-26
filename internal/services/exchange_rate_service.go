@@ -3,6 +3,7 @@ package services
 import (
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
+	"currency-exchange/internal/utilities"
 	"math/big"
 )
 
@@ -53,7 +54,7 @@ func (s *ExchangeRateService) UpdateExchangeRate(baseCurrencyCode string, target
 		ID:             result.ID,
 		BaseCurrency:   baseCurrencyResponce,
 		TargetCurrency: targetCurrencyResponce,
-		Rate:           result.Rate.FloatString(2),
+		Rate:           utilities.RatToFloat(result.Rate),
 	}, nil
 }
 
@@ -124,7 +125,7 @@ func (s *ExchangeRateService) GetExchangeRateResponse(rate domain.ExchangeRate) 
 		ID:             rate.ID,
 		BaseCurrency:   baseCurrencyResponce,
 		TargetCurrency: targetCurrencyResponce,
-		Rate:           rate.Rate.FloatString(2),
+		Rate:           utilities.RatToFloat(rate.Rate),
 	}, err
 }
 
