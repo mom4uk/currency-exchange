@@ -3,7 +3,7 @@ package domain
 import "errors"
 
 type ErrorResponse struct {
-	Message string
+	Message string `json:"message"`
 }
 
 var (
