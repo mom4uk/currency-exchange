@@ -6,8 +6,7 @@ import (
 )
 
 type CurrencyService struct {
-	exchangeRateRepository *repositories.ExchangeRateRepository
-	currencyRepository     *repositories.CurrencyRepository
+	currencyRepository *repositories.CurrencyRepository
 }
 
 func CurrencyServiceNew(
@@ -15,8 +14,7 @@ func CurrencyServiceNew(
 	currencyRepository *repositories.CurrencyRepository,
 ) *CurrencyService {
 	return &CurrencyService{
-		exchangeRateRepository: exchangeRateRepository,
-		currencyRepository:     currencyRepository,
+		currencyRepository: currencyRepository,
 	}
 }
 
