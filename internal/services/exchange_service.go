@@ -3,18 +3,17 @@ package services
 import (
 	"currency-exchange/internal/domain"
 	"currency-exchange/internal/dto"
-	"currency-exchange/internal/repositories"
 	"math/big"
 )
 
 type ExchangeService struct {
-	exchangeRateRepository *repositories.ExchangeRateRepository
-	currencyRepository     *repositories.CurrencyRepository
+	exchangeRateRepository ExchangeRateRepository
+	currencyRepository     CurrencyRepository
 }
 
 func ExchangeServiceNew(
-	exchangeRateRepository *repositories.ExchangeRateRepository,
-	currencyRepository *repositories.CurrencyRepository,
+	exchangeRateRepository ExchangeRateRepository,
+	currencyRepository CurrencyRepository,
 ) *ExchangeService {
 	return &ExchangeService{
 		exchangeRateRepository: exchangeRateRepository,

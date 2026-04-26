@@ -2,15 +2,14 @@ package services
 
 import (
 	"currency-exchange/internal/domain"
-	"currency-exchange/internal/repositories"
 )
 
 type CurrencyService struct {
-	currencyRepository *repositories.CurrencyRepository
+	currencyRepository CurrencyRepository
 }
 
 func CurrencyServiceNew(
-	currencyRepository *repositories.CurrencyRepository,
+	currencyRepository CurrencyRepository,
 ) *CurrencyService {
 	return &CurrencyService{
 		currencyRepository: currencyRepository,
