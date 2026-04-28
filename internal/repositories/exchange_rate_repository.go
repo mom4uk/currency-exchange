@@ -100,7 +100,7 @@ func (r *ExchangeRateRepository) GetExchangeRate(baseCurrencyId int, targetCurre
 		&rateStr,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return domain.ExchangeRate{}, false, nil
 		}
 		return domain.ExchangeRate{}, false, err
