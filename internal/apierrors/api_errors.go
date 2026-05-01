@@ -87,7 +87,7 @@ func HandleError(w http.ResponseWriter, err error) {
 		return
 
 	default:
-		WriteError(w, err.Error(), http.StatusInternalServerError)
+		WriteError(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 }

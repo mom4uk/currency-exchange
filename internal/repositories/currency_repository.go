@@ -109,7 +109,7 @@ func (r *CurrencyRepository) GetCurrencyById(id int) (domain.Currency, error) {
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return domain.Currency{}, domain.ErrCurrencyNotFound
 		}
 		return domain.Currency{}, err
