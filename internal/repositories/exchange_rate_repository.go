@@ -3,6 +3,7 @@ package repositories
 import (
 	"currency-exchange/internal/domain"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"math/big"
